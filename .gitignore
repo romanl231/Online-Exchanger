@@ -7,6 +7,26 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# .NET Core build output
+bin/
+obj/
+
+# Cash folder
+.vs/
+.vscode/
+.idea/
+
+# Cash folder user data
+UserSecrets/
+
+# Logs
+*.log
+
+# IDE config
+.vs2019/
+.vs2017/
+
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
