@@ -24,5 +24,7 @@ namespace backend.Entities
 
         [StringLength(500)]
         public string AvatarUrl { get; set; }
+
+        public ICollection<SessionToken> SessionTokens { get; set; }
     }
 }
