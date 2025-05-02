@@ -1,4 +1,4 @@
-using backend.ServiceExtensions;
+using Exchanger.API.ServiceExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;

@@ -1,10 +1,12 @@
-﻿using backend.Data;
+﻿using Exchanger.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Exchanger.API.Repository.IRepository;
+using Exchanger.API.Repository;
 
-namespace backend.ServiceExtensions
+namespace Exchanger.API.ServiceExtensions
 {
     public static class ServiceExtensions
     {
@@ -13,6 +15,7 @@ namespace backend.ServiceExtensions
             services.AddDbContext<AppDbContext>(options => {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddScoped<ISessionTokenRepository, SessionTokenRepository>();
         }
      
         public static void AddAuthorization(this IServiceCollection services, IConfiguration configuration)

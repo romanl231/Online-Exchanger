@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace backend.Entities
+namespace Exchanger.API.Entities
 {
     public class User
     {

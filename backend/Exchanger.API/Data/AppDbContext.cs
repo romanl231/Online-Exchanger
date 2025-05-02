@@ -1,7 +1,7 @@
-﻿using backend.Entities;
+﻿using Exchanger.API.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Data
+namespace Exchanger.API.Data
 {
     public class AppDbContext : DbContext
     {
@@ -9,5 +9,17 @@ namespace backend.Data
             : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<SessionToken> SessionTokens { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<SessionToken>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.SessionTokens)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

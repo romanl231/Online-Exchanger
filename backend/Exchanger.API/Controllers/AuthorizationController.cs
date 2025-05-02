@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace exchanger.Controllers
+namespace Exchanger.API.Controllers
 {
     
 }

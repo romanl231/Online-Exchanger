@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using backend.Data;
+using Exchanger.API.Data;
 
 #nullable disable
 
-namespace backend.Migrations
+namespace Exchanger.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250501134129_InitialCreate")]
