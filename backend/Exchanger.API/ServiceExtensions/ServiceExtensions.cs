@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Exchanger.API.Repository.IRepository;
-using Exchanger.API.Repository;
+using Exchanger.API.Repositories.IRepositories;
+using Exchanger.API.Repositories;
 
 namespace Exchanger.API.ServiceExtensions
 {
@@ -53,7 +53,5 @@ namespace Exchanger.API.ServiceExtensions
                 };
             });
         }
-
-
     }
 }

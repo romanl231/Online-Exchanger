@@ -1,9 +1,9 @@
 ﻿using Exchanger.API.Data;
 using Exchanger.API.Entities;
-using Exchanger.API.Repository.IRepository;
+using Exchanger.API.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Exchanger.API.Repository
+namespace Exchanger.API.Repositories
 {
     public class SessionTokenRepository : ISessionTokenRepository
     {
@@ -14,10 +14,16 @@ namespace Exchanger.API.Repository
             _context = context;
         }
 
-        public async Task SaveTokenAsync(SessionToken token)
+        public async Task<bool> AddAsync(SessionToken token)
         {
+            if (token == null)
+            {
+                return false;
+            }
+
             _context.SessionTokens.Add(token);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task UpdateTokenAsync(SessionToken token)

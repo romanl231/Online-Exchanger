@@ -1,4 +1,4 @@
-namespace Exchanger.Tests;
+namespace Exchanger.Tests.AuthTests;
 using Xunit;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Exchanger.API.Data;
 using Exchanger.API.Entities;
-using Exchanger.API.Repository;
+using Exchanger.API.Repositories;
 
 public class SessionTokenRepositoryTest
 {
     private AppDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // унікальна база для кожного тесту
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         return new AppDbContext(options);
