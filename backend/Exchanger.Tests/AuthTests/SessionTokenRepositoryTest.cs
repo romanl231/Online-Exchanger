@@ -27,9 +27,15 @@ public class SessionTokenRepositoryTest
         using var context = CreateContext();
         context.SessionTokens.AddRange(new List<SessionToken>
         {
-            new SessionToken { Id = Guid.NewGuid(), UserId = userId, IsRevoked = false },
-            new SessionToken { Id = Guid.NewGuid(), UserId = userId, IsRevoked = true },
-            new SessionToken { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), IsRevoked = false }
+            new SessionToken { Id = Guid.NewGuid(), UserId = userId, CreatedAt = 
+            DateTime.UtcNow, ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = 
+            "Comp", IpAdress = "myAdress", IsRevoked = false },
+            new SessionToken { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, 
+                ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = "Comp", IpAdress = "myAdress", 
+                IsRevoked = true },
+            new SessionToken { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, 
+                ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = "Comp", IpAdress = "myAdress",
+                IsRevoked = false }
         });
 
         await context.SaveChangesAsync();

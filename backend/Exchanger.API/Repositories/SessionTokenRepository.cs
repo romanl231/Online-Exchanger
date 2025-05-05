@@ -1,4 +1,5 @@
 ﻿using Exchanger.API.Data;
+using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.Entities;
 using Exchanger.API.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -34,8 +35,8 @@ namespace Exchanger.API.Repositories
 
         public async Task<SessionToken> GetTokenByIdAsync(Guid tokenId)
         {
-            return 
-                await _context.SessionTokens.FirstOrDefaultAsync(t => t.Id == tokenId);
+            var token = await _context.SessionTokens.FirstOrDefaultAsync(t => t.Id == tokenId);
+            return token;
         }
 
         public async Task<List<SessionToken>> GetUnexpiredTokensByUserIdAsync(Guid userId)
