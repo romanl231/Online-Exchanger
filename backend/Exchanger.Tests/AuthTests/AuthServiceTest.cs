@@ -112,16 +112,16 @@ namespace Exchanger.Tests.AuthTests
                 IpAdress = "Compuder aderese",
             };
 
-            var result1 = await authService.Login(authDto, sessionInfo);
+            var result1 = await authService.LoginAsync(authDto, sessionInfo);
             Assert.Equal(AuthErrorCode.InvalidCredentials, result1.ErrorCode);
 
             authDto.Password = "itsMyPasswordHash";
-            var result2 = await authService.Login(authDto, sessionInfo);
+            var result2 = await authService.LoginAsync(authDto, sessionInfo);
             Assert.Equal("someaccesstoken", result2.OnCreationSession.AccessToken);
             Assert.Equal("somerefreshtoken", result2.OnCreationSession.RefreshToken);
 
             authDto.Email = "someshit@email.example";
-            var result3 = await authService.Login(authDto,sessionInfo);
+            var result3 = await authService.LoginAsync(authDto,sessionInfo);
             Assert.Equal(AuthErrorCode.UserNotFound, result3.ErrorCode);
         }
     }

@@ -5,7 +5,7 @@ namespace Exchanger.API.Services.IServices
 {
     public interface IAuthService
     {
-        Task<AuthResult> Login(AuthDTO authDTO, SessionInfo sessionInfo);
-        Task<AuthResult> Logout(Guid refreshToken);
+        Task<AuthResult> LoginAsync(AuthDTO authDTO, SessionInfo sessionInfo);
+        Task<AuthResult> LogoutAsync(Guid refreshToken);
     }
 }

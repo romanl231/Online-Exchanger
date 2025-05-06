@@ -15,7 +15,7 @@ namespace Exchanger.API.Services
             _tokenService = tokenService;
         }
 
-        public async Task<AuthResult> Login(AuthDTO authDTO, SessionInfo sessionInfo)
+        public async Task<AuthResult> LoginAsync(AuthDTO authDTO, SessionInfo sessionInfo)
         {
             var result = await _userService.CheckDoesPasswordsMatches(authDTO);
             if(result.ErrorCode != null)
@@ -25,7 +25,7 @@ namespace Exchanger.API.Services
             return result.WithSession(session);
         }
 
-        public async Task<AuthResult> Logout(Guid refreshToken)
+        public async Task<AuthResult> LogoutAsync(Guid refreshToken)
         {
             if(!await _tokenService.RevokeSessionAsync(refreshToken))
                 return AuthResult.Fail(AuthErrorCode.TokenInvalid);

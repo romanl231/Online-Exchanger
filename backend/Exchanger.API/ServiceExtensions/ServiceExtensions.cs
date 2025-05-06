@@ -27,8 +27,8 @@ namespace Exchanger.API.ServiceExtensions
 
             services.AddSingleton<JWTSettings>();
         }
-     
-        public static void AddAuthorization(this IServiceCollection services, IConfiguration configuration)
+
+        public static void AddCustomAuthorization(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(options =>
             {
