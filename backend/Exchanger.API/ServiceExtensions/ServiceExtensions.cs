@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Repositories;
+using Exchanger.API.Services.IServices;
+using Exchanger.API.Services;
+using Exchanger.API.DTOs.AuthDTOs;
 
 namespace Exchanger.API.ServiceExtensions
 {
@@ -16,6 +19,12 @@ namespace Exchanger.API.ServiceExtensions
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddScoped<ISessionTokenRepository, SessionTokenRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
+
+            services.AddSingleton<JWTSettings>();
         }
      
         public static void AddAuthorization(this IServiceCollection services, IConfiguration configuration)

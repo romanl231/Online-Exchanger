@@ -35,7 +35,8 @@ namespace Exchanger.API.Repositories
 
         public async Task<SessionToken> GetTokenByIdAsync(Guid tokenId)
         {
-            var token = await _context.SessionTokens.FirstOrDefaultAsync(t => t.Id == tokenId);
+            var token = await _context.SessionTokens
+                .FirstOrDefaultAsync(t => t.Id == tokenId);
             return token;
         }
 
