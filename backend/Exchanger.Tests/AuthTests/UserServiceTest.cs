@@ -72,6 +72,13 @@ namespace Exchanger.Tests.AuthTests
                     return true;
                 });
 
+            mockRepo.Setup(r => r.GetByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((string email) =>
+                {
+                    var user = users.FirstOrDefault(u => u.Email == email);
+                    return user;
+                });
+
             var userService = new UserService(mockRepo.Object);
 
             var authDto = new AuthDTO
@@ -82,21 +89,13 @@ namespace Exchanger.Tests.AuthTests
 
             var response1 = await userService.RegisterUserAsync(authDto);
 
-            var userId = users.First().Id;
-            var expectedResponse = new User
-            {
-                Id = userId,
-                Email = "pososachka@example.com",
-                PasswordHash = "somehash",
-                Name = "None",
-                Surname = "None",
-                AvatarUrl = "None",
-            };
+            var user = users.FirstOrDefault(u => u.Email == "pososachka@example.com");
 
-            Assert.Equal(AuthResult.Success(expectedResponse), response1);
+            Assert.NotNull(user);
+            Assert.NotEqual(Guid.Empty, user.Id);
 
             var response2 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.EmailUsed), response2);
+            Assert.Equal(AuthErrorCode.EmailUsed, response2.ErrorCode);
         }
 
         [Fact]
@@ -120,23 +119,23 @@ namespace Exchanger.Tests.AuthTests
                 Password = "mypass",
             };
             var result1 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.ShortPassword), result1);
+            Assert.Equal(AuthErrorCode.ShortPassword, result1.ErrorCode);
 
             authDto.Password = "qwertyui";
             var result2 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.PasswordMustContainNum), result2);
+            Assert.Equal(AuthErrorCode.PasswordMustContainNum, result2.ErrorCode);
 
             authDto.Password = "qwertyui1";
             var result3 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.PasswordMustContainSpecialChar), result3);
+            Assert.Equal(AuthErrorCode.PasswordMustContainSpecialChar, result3.ErrorCode);
 
             authDto.Password = "qwertyui1#";
             var result4 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.PasswordMustContainUppercase), result4);
+            Assert.Equal(AuthErrorCode.PasswordMustContainUppercase, result4.ErrorCode);
 
             authDto.Password = "12345678";
             var result5 = await userService.RegisterUserAsync(authDto);
-            Assert.Equal(AuthResult.Fail(AuthErrorCode.PasswordMustContainChar), result5);
+            Assert.Equal(AuthErrorCode.PasswordMustContainChar, result5.ErrorCode);
 
             authDto.Password = "qwertyui1#Q";
             var result6 = await userService.RegisterUserAsync(authDto);

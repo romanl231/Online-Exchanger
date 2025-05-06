@@ -7,7 +7,7 @@ namespace Exchanger.API.Services.IServices
     {
         Task<bool> CheckUserExistanceByEmailAsync(string email);
         Task<AuthResult> RegisterUserAsync(AuthDTO authDTO);
-        Task<AuthResult> ValidateUserPasswordAsync(AuthDTO authDTO);
+        AuthErrorCode? ValidateUserPassword(string password);
         Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO);
     }
 }

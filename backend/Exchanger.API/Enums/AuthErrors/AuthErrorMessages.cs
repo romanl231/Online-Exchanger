@@ -15,7 +15,8 @@
             { AuthErrorCode.PasswordMustContainChar, "Password must contain at least 1 letter" },
             { AuthErrorCode.PasswordMustContainNum, "Password must contain at least 1 number" },
             { AuthErrorCode.PasswordMustContainSpecialChar, "Password must contain at least 1 special char" },
-            { AuthErrorCode.PasswordMustContainUppercase, "Password must contain at least 1 upper case letter" },
+            { AuthErrorCode.PasswordMustContainUppercase, "Password must contain at least 1 uppercase letter" },
+            { AuthErrorCode.PasswordMustContainLowercase, "Password must contain at least 1 lowercase letter" },
         };
     }
 }

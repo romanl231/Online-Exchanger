@@ -14,5 +14,6 @@
         PasswordMustContainChar,
         PasswordMustContainSpecialChar,
         PasswordMustContainUppercase,
+        PasswordMustContainLowercase,
     }
 }
