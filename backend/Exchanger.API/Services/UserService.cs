@@ -87,6 +87,21 @@ namespace Exchanger.API.Services
             return null;
         }
 
+        public async Task<AuthResult> CheckDoesPasswordsMatches(AuthDTO authDTO)
+        {
+            if (authDTO == null)
+                throw new ArgumentNullException("Empty auth DTO received");
+
+            var user = await _userRepository.GetByEmailAsync(authDTO.Email);
+            if (user == null)
+                return AuthResult.Fail(AuthErrorCode.UserNotFound);
+
+            if (!BCrypt.Net.BCrypt.Verify(authDTO.Password, user.PasswordHash))
+                return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
+
+            return AuthResult.Success(user);
+        }
+
         public async Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO)
         {
             return AuthResult.Fail(AuthErrorCode.InvalidCredentials);

@@ -23,6 +23,7 @@ namespace Exchanger.API.ServiceExtensions
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddSingleton<JWTSettings>();
         }
