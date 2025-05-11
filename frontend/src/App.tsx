@@ -4,6 +4,7 @@ import { useAxiosInterceptor } from "./hooks/useAxiosInterceptor";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import Register from "./pages/Register";
 
 const App = () => {
   useAxiosInterceptor();
@@ -13,6 +14,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="register" element={<Register/>} />
           <Route
             path="/"
             element={
