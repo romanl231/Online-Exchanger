@@ -3,40 +3,41 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { getClientIp, getDeviceFingerprint } from "../../utils/getClientInfo";
 
 const SignInButton = ({ email, password, disabled } : 
   { email: string; password: string; disabled: boolean}) => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const ipAdress = "1234";
-  const deviceType = "1234";
 
   const handleSubmit = async () => {
     try {
-      await AuthService.login({ email, password, ipAdress, deviceType});
-      const me = await AuthService.me();
-      setUser(me.data);
-      navigate("/");
-      toast.success("Login successed", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
-    } catch (err : any) {
-      toast.error(getApiErrorMessage(err), {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
-    }
+        const ipAdress = await getClientIp();
+        const deviceType = getDeviceFingerprint();
+        await AuthService.login({ email, password, ipAdress, deviceType});
+        const me = await AuthService.me();
+        setUser(me.data);
+        navigate("/");
+        toast.success("Login successed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+      } catch (err : any) {
+        toast.error(getApiErrorMessage(err), {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+     }
   };
 
   return (
