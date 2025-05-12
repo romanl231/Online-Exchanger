@@ -5,6 +5,7 @@ var configuration = builder.Configuration;
 
 builder.Services.AddApplicationServices(configuration);
 builder.Services.AddCustomAuthorization(configuration);
+builder.Services.AddCustomCors(configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -20,6 +21,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

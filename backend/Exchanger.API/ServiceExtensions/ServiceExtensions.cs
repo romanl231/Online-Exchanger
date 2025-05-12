@@ -63,5 +63,19 @@ namespace Exchanger.API.ServiceExtensions
                 };
             });
         }
+
+        public static void AddCustomCors(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+        }
     }
 }
