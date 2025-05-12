@@ -19,7 +19,16 @@ api.interceptors.response.use(
 );
 
 export const AuthService = {
-  login: (data: { email: string; password: string, ipAdress:string, deviceType:string }) => api.post("/auth/login", data),
+  login: (data: { email: string; password: string, ipAdress:string, deviceType:string }) => api.post("/auth/login", {
+      AuthDTO: {
+        Email: data.email,
+        Password: data.password
+      },
+      SessionInfo: {
+        IpAdress: data.ipAdress,
+        DeviceType: data.deviceType
+      }
+    }),
   register: (data: {email: string; password: string }) => api.post("/user/register", data),
   logout: () => api.post("/auth/logout"),
   refresh: () => api.post("/auth/refresh"),

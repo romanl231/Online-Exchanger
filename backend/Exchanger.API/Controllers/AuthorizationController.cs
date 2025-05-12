@@ -44,6 +44,13 @@ namespace Exchanger.API.Controllers
             }
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public IActionResult CheckIsUserLogedIn()
+        {
+            return Ok();
+        }
+
         private IActionResult HandleLoginResult(AuthResult result)
         {
             if (!result.IsSuccess)
