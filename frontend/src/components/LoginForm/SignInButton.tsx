@@ -1,4 +1,3 @@
-import React from "react";
 import { AuthService } from "../../api/authApi";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";

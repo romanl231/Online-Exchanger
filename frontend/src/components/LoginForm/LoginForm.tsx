@@ -17,7 +17,6 @@ const LoginForm: React.FC = () => {
     },
     validationSchema: loginValidationSchema,
     onSubmit: (values) => {
-      // Можеш сюди вставити логіку логіну
       console.log("Logging in with:", values);
     },
   });

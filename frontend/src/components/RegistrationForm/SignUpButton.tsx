@@ -9,9 +9,15 @@ interface SignUpButtonProps {
   email: string;
   password: string;
   confirmPassword: string;
+  disabled: boolean;
 }
 
-const SignUpButton: React.FC<SignUpButtonProps> = ({ email, password, confirmPassword }) => {
+const SignUpButton: React.FC<SignUpButtonProps> = ({ 
+  email, 
+  password, 
+  confirmPassword,
+  disabled, 
+}) => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -50,10 +56,12 @@ const SignUpButton: React.FC<SignUpButtonProps> = ({ email, password, confirmPas
   return (
     <button
       type="button"
+      disabled={disabled}
       onClick={handleSubmit}
-      className="outline-none focus:outline-none ring-0 
+      className={`outline-none focus:outline-none ring-0
+      ${disabled ? "opacity-50 cursor-not-allowed" : ""}
       focus:ring-0 w-full bg-purple-600 text-white 
-      py-2 rounded-xl hover:bg-purple-700 transition"
+      py-2 rounded-xl hover:bg-purple-700 transition`}
     >
       Sign Up
     </button>
