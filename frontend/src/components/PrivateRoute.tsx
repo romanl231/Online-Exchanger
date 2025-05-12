@@ -1,12 +1,21 @@
-import type { JSX } from "react";
-import { Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const { user } = useAuth();
+interface PrivateRouteProps {
+  children: ReactNode; // Заміна JSX.Element на ReactNode для більшої гнучкості
+}
 
-  if (!user) return <Navigate to="/login" />;
-  return children;
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
+  const { user } = useAuth();
+  const location = useLocation(); // Отримуємо поточний шлях
+
+  if (!user) {
+    // Зберігаємо шлях, на який користувач намагався перейти
+    return <Navigate to="/login" state={{ from: location }} />;
+  }
+
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

@@ -22,7 +22,7 @@ const SignInButton = ({ email, password }: { email: string; password: string }) 
     <button
       type="button"
       onClick={handleSubmit}
-      className="absolute right-4 top-1/2 transform -translate-y-1/2"
+      className="w-full bg-purple-600 hover:bg-purple-700 transition-colors text-white font-semibold py-3 rounded-xl shadow-md"
     >
       Sign In
     </button>

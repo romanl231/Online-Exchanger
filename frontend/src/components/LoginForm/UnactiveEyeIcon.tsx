@@ -1,6 +1,6 @@
 import React from "react";
 
-const EyeIcon: React.FC = () => {
+const UnactiveEyeIcon: React.FC = () => {
   return (
     <svg
       width="22"
@@ -28,4 +28,4 @@ const EyeIcon: React.FC = () => {
   );
 };
 
-export default EyeIcon;
+export default UnactiveEyeIcon;

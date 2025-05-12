@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_BASE_URL } from "../constants.ts";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
@@ -21,7 +22,7 @@ api.interceptors.response.use(
 
 export const AuthService = {
   login: (data: { email: string; password: string }) => api.post("/auth/login", data),
-  register: (data: {email: string; password: string }) => api.post("/auth/register", data),
+  register: (data: {email: string; password: string }) => api.post("/user/register", data),
   logout: () => api.post("/auth/logout"),
   refresh: () => api.post("/auth/refresh"),
   me: () => api.get("/auth/me"),

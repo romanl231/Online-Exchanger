@@ -1,41 +1,50 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import EmailInputField from "./EmailInputField";
 import PasswordInput from "./PasswordInput";
 import Divider from "./Divider";
 import GoogleSignIn from "./GoogleSignIn";
 import SignInButton from "./SignInButton";
-
+import Logo from "./Logo";
 
 const LoginForm: React.FC = () => {
-    const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    <section className="flex justify-center items-center w-screen h-screen bg-neutral-900">
-      <article className="flex flex-col items-center px-10 py-12 bg-stone-900 rounded-[30px] w-[536px] max-md:w-[90%] max-sm:px-5 max-sm:w-[95%]">
-        <h1 className="mb-24 text-4xl text-purple-400">ExchangeMe</h1>
+    <section className="flex justify-center items-center w-screen h-screen bg-[#121212]">
 
-        <form className="flex flex-col gap-12 w-full">
-          <EmailInputField label="Your email" value={email} onChange={e => setEmail(e.target.value)} />
+      <article className="flex flex-col items-center px-10 py-12 bg-[#1E1E1E] 
+      rounded-[30px] w-[536px] max-md:w-[85%] max-sm:px-5 max-sm:w-[95%]">
+        <Logo />
 
-          <PasswordInput value={password} onChange={e => setPassword(e.target.value)} />
+        <form className="text-red-500 text-4xl font-bold">
+          <EmailInputField
+            label="Your email"
+            value={email}
+            onChange={e => setEmail(e.target.value)} />
+
+          <PasswordInput
+            label="Your password"
+            value={password}
+            onChange={e => setPassword(e.target.value)} />
 
           <div className="flex flex-col gap-5 items-center w-full">
-            
-            <SignInButton email={email} password={password}/>
+
+            <SignInButton email={email} password={password} />
 
             <div className="flex flex-col text-sm text-gray-200">
               <p>You don't have an account yet?</p>
-              <button type="button" className="mx-auto text-purple-400 cursor-pointer">
+              <Link to="/register" className="mx-auto text-purple-400 cursor-pointer">
                 Create one
-              </button>
+              </Link>
             </div>
 
             <Divider />
 
-            <button type="button" className="text-sm text-purple-400 cursor-pointer">
+            <Link to="/" className="mx-auto text-purple-400 cursor-pointer">
               Forgot your password?
-            </button>
+            </Link>
 
             <GoogleSignIn />
           </div>
