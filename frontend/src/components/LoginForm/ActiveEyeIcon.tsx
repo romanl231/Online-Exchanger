@@ -8,7 +8,7 @@ const ActiveEyeIcon: React.FC = () => {
   viewBox="0 0 24 24"
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
-  className="w-[20px] h-[15px]"
+  className="w-[35px] h-[20px] bg-transparent"
 >
   <path
     d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5
@@ -18,9 +18,9 @@ const ActiveEyeIcon: React.FC = () => {
        m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243
        m4.242 4.242L9.88 9.88"
     stroke="#EAEAEA"
-    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
+    fill="none"
   />
 </svg>
 

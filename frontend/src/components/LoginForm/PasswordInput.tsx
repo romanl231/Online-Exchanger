@@ -35,14 +35,17 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         <label htmlFor="password-input" className="text-sm text-gray-300 mb-1">{label}</label>
         <input
           type={showPassword ? "text" : "password"}
-          className="w-full rounded-3xl border bg-zinc-800 border-neutral-700 h-[41px] px-4 text-gray-200 outline-none focus:border-purple-400"
+          className="w-full rounded-3xl border bg-zinc-800 border-neutral-700 
+          h-[41px] px-4 text-gray-200 outline-none focus:border-purple-400"
           value={value}
           onChange={onChange}
         />
         <button
-         type="button"
+          type="button"
           onClick={togglePasswordVisibility}
-          className="absolute right-4 bottom-2 transform -translate-y-1/2"
+          className="outline-none focus:outline-none ring-0 
+             hover:ring-2 hover:ring-purple-400 
+             absolute right-1 transform bg-transparent"
           aria-label={showPassword ? "Hide password" : "Show password"}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}

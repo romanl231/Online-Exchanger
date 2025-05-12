@@ -32,7 +32,9 @@ const SignUpButton: React.FC<SignUpButtonProps> = ({ email, password, confirmPas
     <button
       type="button"
       onClick={handleSubmit}
-      className="w-full bg-purple-600 text-white py-2 rounded-xl hover:bg-purple-700 transition"
+      className="outline-none focus:outline-none ring-0 
+      focus:ring-0 w-full bg-purple-600 text-white 
+      py-2 rounded-xl hover:bg-purple-700 transition"
     >
       Sign Up
     </button>
