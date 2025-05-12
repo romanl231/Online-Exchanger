@@ -9,7 +9,7 @@ const SignInButton = ({ email, password }: { email: string; password: string }) 
 
   const handleSubmit = async () => {
     try {
-      await AuthService.login({ email, password });
+      await AuthService.login({ email, password, ipAdress:"ipadd", deviceType:"itsme"});
       const me = await AuthService.me();
       setUser(me.data);
       navigate("/");

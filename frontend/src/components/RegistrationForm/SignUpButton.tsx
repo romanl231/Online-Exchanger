@@ -2,6 +2,8 @@ import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../../api/authApi";
+import { toast } from 'react-toastify';
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage.ts";
 
 interface SignUpButtonProps {
   email: string;
@@ -23,8 +25,25 @@ const SignUpButton: React.FC<SignUpButtonProps> = ({ email, password, confirmPas
       const me = await AuthService.me();
       setUser(me.data);
       navigate("/");
-    } catch (err) {
-      alert((err as Error).message || "Registration failed");
+      toast.success("Registration successed", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } catch (err: any) {
+        toast.error(getApiErrorMessage(err), {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     }
   };
 
