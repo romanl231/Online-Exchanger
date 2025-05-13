@@ -141,5 +141,62 @@ namespace Exchanger.Tests.AuthTests
             var result6 = await userService.RegisterUserAsync(authDto);
             Assert.NotNull(result6);
         }
+
+        [Fact]
+        public async Task Get_User_Info()
+        {
+            using var context = CreateContext();
+
+            context.Users.AddRange(new List<User>
+            {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "examplemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "anotherexampleemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User {
+                Id = Guid.NewGuid(),
+                Email = "imtiredofparcingdata@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            }
+            });
+
+            await context.SaveChangesAsync();
+            var users = context.Users.ToList();
+
+            var mockRepo = new Mock<IUserRepository>();
+            mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == userId);
+                    return user;
+                });
+
+            var user = users.First(u => u.Id != Guid.Empty);
+            var userService = new UserService(mockRepo.Object);
+            var userInfo = await userService.GetUserInfoAsync(user.Id);
+
+            Assert.NotNull(userInfo);
+            Assert.NotNull(userInfo.FirstName); 
+            Assert.NotNull(userInfo.Surname);
+            Assert.NotNull(userInfo.Email);
+            Assert.NotNull(userInfo.AvatarUrl);
+        }
     }
 }

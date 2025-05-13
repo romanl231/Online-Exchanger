@@ -19,11 +19,7 @@ namespace Exchanger.API.Services
         public async Task<bool> CheckUserExistanceByEmailAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
-
-            if (user == null)
-                return false;
-
-            return true;
+            return user != null; ;
         }
 
         public async Task<AuthResult> RegisterUserAsync(AuthDTO authDTO)
@@ -100,6 +96,26 @@ namespace Exchanger.API.Services
                 return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
 
             return AuthResult.Success(user);
+        }
+
+        public async Task<DisplayUserInfoDTO> GetUserInfoAsync(Guid userId)
+        {
+            var userEntity = await _userRepository.GetByIdAsync(userId);
+            if (userEntity == null)
+                throw new ArgumentNullException("Wrong user ID");
+
+            return MapUserToDisplayUserInfoDTO(userEntity);
+        }
+
+        public DisplayUserInfoDTO MapUserToDisplayUserInfoDTO(User user)
+        {
+            return new DisplayUserInfoDTO
+            {
+                Email = user.Email,
+                FirstName = user.Name,
+                Surname = user.Surname,
+                AvatarUrl = user.AvatarUrl,
+            };
         }
 
         public async Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO)
