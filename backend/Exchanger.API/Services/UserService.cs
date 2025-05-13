@@ -118,9 +118,23 @@ namespace Exchanger.API.Services
             };
         }
 
-        public async Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO)
+        public async Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO, Guid userId)
         {
-            return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new ArgumentNullException("Wrong user ID");
+
+            UpdateUserEntity(updateProfileDTO, user);
+            if (!await _userRepository.UpdateAsync(user))
+                return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
+
+            return AuthResult.Success();
+        }
+
+        public void UpdateUserEntity(UpdateProfileDTO userDTO, User userEntity)
+        {
+            userEntity.Name = userDTO.Name;
+            userEntity.Surname = userDTO.Surname;
         }
     }
 }

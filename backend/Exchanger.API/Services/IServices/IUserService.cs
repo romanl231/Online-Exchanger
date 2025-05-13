@@ -9,7 +9,7 @@ namespace Exchanger.API.Services.IServices
         Task<AuthResult> RegisterUserAsync(AuthDTO authDTO);
         Task<DisplayUserInfoDTO> GetUserInfoAsync(Guid userId);
         AuthErrorCode? ValidateUserPassword(string password);
-        Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO); 
+        Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO, Guid userId); 
         Task<AuthResult> CheckDoesPasswordsMatches(AuthDTO authDTO);
     }
 }
