@@ -5,7 +5,7 @@ namespace Exchanger.API.Data
 {
     public static class UserHelper
     {
-        public static string GetCurrentUserId(HttpContext context)
+        public static Guid GetCurrentUserId(HttpContext context)
         {
             var userId = context.User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?
@@ -16,7 +16,8 @@ namespace Exchanger.API.Data
                 throw new UnauthorizedAccessException("Uanuthorized");
             }
 
-            return userId;
+            var userGuid = Guid.Parse(userId);
+            return userGuid;
         }
     }
 }

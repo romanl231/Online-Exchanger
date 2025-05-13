@@ -13,7 +13,7 @@ using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.Enums.AuthErrors;
 using Azure;
 
-namespace Exchanger.Tests.AuthTests
+namespace Exchanger.Tests.UserTest
 {
     public class UserServiceTest
     {
@@ -193,7 +193,7 @@ namespace Exchanger.Tests.AuthTests
             var userInfo = await userService.GetUserInfoAsync(user.Id);
 
             Assert.NotNull(userInfo);
-            Assert.NotNull(userInfo.FirstName); 
+            Assert.NotNull(userInfo.FirstName);
             Assert.NotNull(userInfo.Surname);
             Assert.NotNull(userInfo.Email);
             Assert.NotNull(userInfo.AvatarUrl);
