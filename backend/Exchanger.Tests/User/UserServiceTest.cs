@@ -13,7 +13,7 @@ using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.Enums.AuthErrors;
 using Azure;
 
-namespace Exchanger.Tests.AuthTests
+namespace Exchanger.Tests.UserTest
 {
     public class UserServiceTest
     {
@@ -140,6 +140,131 @@ namespace Exchanger.Tests.AuthTests
             authDto.Password = "qwertyui1#Q";
             var result6 = await userService.RegisterUserAsync(authDto);
             Assert.NotNull(result6);
+        }
+
+        [Fact]
+        public async Task Get_User_Info()
+        {
+            using var context = CreateContext();
+
+            context.Users.AddRange(new List<User>
+            {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "examplemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "anotherexampleemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User {
+                Id = Guid.NewGuid(),
+                Email = "imtiredofparcingdata@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            }
+            });
+
+            await context.SaveChangesAsync();
+            var users = context.Users.ToList();
+
+            var mockRepo = new Mock<IUserRepository>();
+            mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == userId);
+                    return user;
+                });
+
+            var user = users.First(u => u.Id != Guid.Empty);
+            var userService = new UserService(mockRepo.Object);
+            var userInfo = await userService.GetUserInfoAsync(user.Id);
+
+            Assert.NotNull(userInfo);
+            Assert.NotNull(userInfo.FirstName);
+            Assert.NotNull(userInfo.Surname);
+            Assert.NotNull(userInfo.Email);
+            Assert.NotNull(userInfo.AvatarUrl);
+        }
+
+        [Fact]
+        public async Task Should_Update_User_Entity()
+        {
+            using var context = CreateContext();
+
+            context.Users.AddRange(new List<User>
+            {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "examplemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "anotherexampleemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User {
+                Id = Guid.NewGuid(),
+                Email = "imtiredofparcingdata@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            }
+            });
+
+            await context.SaveChangesAsync();
+            var users = context.Users.ToList();
+
+            var mockRepo = new Mock<IUserRepository>();
+            mockRepo.Setup(r => r.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync((User user) =>
+                {
+                    var userToUpdate = users.First(u => u.Id == user.Id);
+                    userToUpdate.Name = user.Name;
+                    userToUpdate.Surname = user.Surname;
+                    return true;
+                });
+
+            mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == userId);
+                    return user;
+                });
+
+            var userId = users.First(u => u.Id != Guid.Empty).Id;
+            var updateUserDTO = new UpdateProfileDTO
+            {
+                Name = "Eminem",
+                Surname = "MarshallMathew"
+            };
+
+            var userService = new UserService(mockRepo.Object);
+            var result = await userService.UpdateUserInfoAsync(updateUserDTO, userId);
+
+            Assert.True(result.IsSuccess);
         }
     }
 }
