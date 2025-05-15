@@ -1,6 +1,7 @@
 ﻿using Exchanger.API.Data;
 using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.Enums.AuthErrors;
+using Exchanger.API.Enums.UploadToCloudErrors;
 using Exchanger.API.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,23 +23,42 @@ namespace Exchanger.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] AuthDTO authDTO)
-        {
-            try
+        public Task<IActionResult> Register([FromBody] AuthDTO authDTO) =>
+            SafeExecuteAsync(async () =>
             {
                 var result = await _userService.RegisterUserAsync(authDTO);
                 return HandleAuthResult(result);
-            }
-            catch (ArgumentException ex)
+            }, "user registration");
+
+        [Authorize]
+        [HttpGet("me")]
+        public Task<IActionResult> GetCurrentUserProfile() =>
+          SafeExecuteAsync(async () =>
+          {
+              var userId = UserHelper.GetCurrentUserId(HttpContext);
+              var result = await _userService.GetUserInfoAsync(userId);
+              return Ok(result);
+          }, "getting user profile");
+
+
+        [Authorize]
+        [HttpPatch("update")]
+        public Task<IActionResult> UpdateUserInfo([FromBody] UpdateProfileDTO updateProfileDTO) =>
+            SafeExecuteAsync(async () =>
             {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred during user registration.");
-                return StatusCode(500, "An unexpected error occured");
-            }
-        }
+                var userId = UserHelper.GetCurrentUserId(HttpContext);
+                var result = await _userService.UpdateUserInfoAsync(updateProfileDTO, userId);
+                return HandleAuthResult(result);
+            }, "updating user profile");
+
+        [Authorize]
+        [HttpPatch("change-avatar")]
+        public Task<IActionResult> UpdateAvatar(IFormFile image) =>
+            SafeExecuteAsync(async () => {
+                var userId = UserHelper.GetCurrentUserId(HttpContext);
+                var result = await _userService.UploadAvatarAsync(image, userId);
+                return HandleCloudResult(result);
+            }, "changing avatar");
 
         private IActionResult HandleAuthResult(AuthResult result)
         {
@@ -54,36 +74,25 @@ namespace Exchanger.API.Controllers
             return Ok(result.IsSuccess);
         }
 
-        [Authorize]
-        [HttpGet("me")]
-        public async Task<IActionResult> GetCurrentUserProfile()
+        private IActionResult HandleCloudResult(CloudResult result)
         {
-            try
+            if (!result.IsSuccess)
             {
-                var userId = UserHelper.GetCurrentUserId(HttpContext);
-                var userProfileInfo = await _userService.GetUserInfoAsync(userId);
-                return Ok(userProfileInfo);
+                if (CloudErrorMessages.Messages
+                    .TryGetValue(result.ErrorCode.Value, out var message))
+                    return BadRequest(message);
+
+                return BadRequest("Unknown error");
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An unexpected error occurred during user registration.");
-                return StatusCode(500, "An unexpected error occurred");
-            }
+
+            return Ok(result.IsSuccess);
         }
 
-        [Authorize]
-        [HttpPatch("update")]
-        public async Task<IActionResult> UpdateUserInfo([FromBody] UpdateProfileDTO updateProfileDTO)
+        private async Task<IActionResult> SafeExecuteAsync(Func<Task<IActionResult>> action, string logContext)
         {
             try
             {
-                var userId = UserHelper.GetCurrentUserId(HttpContext);
-                var result = await _userService.UpdateUserInfoAsync(updateProfileDTO, userId);
-                return HandleAuthResult(result);
+                return await action();
             }
             catch (ArgumentException ex)
             {
@@ -91,7 +100,7 @@ namespace Exchanger.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred during user registration.");
+                _logger.LogError(ex, $"Unexpected error occurred during {logContext}.");
                 return StatusCode(500, "An unexpected error occurred");
             }
         }

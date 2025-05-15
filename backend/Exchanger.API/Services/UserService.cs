@@ -4,16 +4,19 @@ using Exchanger.API.Enums.AuthErrors;
 using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Services.IServices;
 using BCrypt.Net;
+using Exchanger.API.Enums.UploadToCloudErrors;
 
 namespace Exchanger.API.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public UserService(IUserRepository userRepository) 
+        public UserService(IUserRepository userRepository, ICloudinaryService cloudinaryService) 
         {
             _userRepository = userRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<bool> CheckUserExistanceByEmailAsync(string email)
@@ -129,6 +132,30 @@ namespace Exchanger.API.Services
                 return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
 
             return AuthResult.Success();
+        }
+
+        public async Task<CloudResult> UploadAvatarAsync(IFormFile image, Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new ArgumentNullException("Wrong userId");
+
+            var cloudResponse = await _cloudinaryService.UploadImageToCloudAsync(image, userId);
+
+            if (cloudResponse == null || !cloudResponse.IsSuccess)
+                return cloudResponse ?? CloudResult.Fail(CloudErrorCode.UnexpectedCloudError);
+
+            UpdateUserEntity(cloudResponse.UploadResult.SecureUrl.AbsoluteUri, user);
+
+            if (!await _userRepository.UpdateAsync(user))
+                return CloudResult.Fail(CloudErrorCode.UnexpectedCloudError);
+
+            return CloudResult.Success();
+        }
+
+        public void UpdateUserEntity(string avatarUrl, User userEntity)
+        {
+            userEntity.AvatarUrl = avatarUrl;
         }
 
         public void UpdateUserEntity(UpdateProfileDTO userDTO, User userEntity)
