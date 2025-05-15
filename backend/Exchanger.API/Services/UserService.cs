@@ -10,10 +10,12 @@ namespace Exchanger.API.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public UserService(IUserRepository userRepository) 
+        public UserService(IUserRepository userRepository, ICloudinaryService cloudinaryService) 
         {
             _userRepository = userRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<bool> CheckUserExistanceByEmailAsync(string email)
@@ -135,6 +137,11 @@ namespace Exchanger.API.Services
         {
             userEntity.Name = userDTO.Name;
             userEntity.Surname = userDTO.Surname;
+        }
+
+        public async Task<AuthResult> UploadAvatarAsync(IFormFile image, Guid userId)
+        {
+            return AuthResult.Fail(AuthErrorCode.InvalidCredentials);
         }
     }
 }

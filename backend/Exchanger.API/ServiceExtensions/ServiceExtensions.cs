@@ -26,6 +26,7 @@ namespace Exchanger.API.ServiceExtensions
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddSingleton<JWTSettings>();
+            services.AddSingleton<ICloudinaryService, CloudinaryService>();
         }
 
         public static void AddCustomAuthorization(this IServiceCollection services, IConfiguration configuration)

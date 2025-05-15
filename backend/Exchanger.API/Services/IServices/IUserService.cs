@@ -11,5 +11,6 @@ namespace Exchanger.API.Services.IServices
         AuthErrorCode? ValidateUserPassword(string password);
         Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO, Guid userId); 
         Task<AuthResult> CheckDoesPasswordsMatches(AuthDTO authDTO);
+        Task<AuthResult> UploadAvatarAsync(IFormFile image, Guid userId);
     }
 }
