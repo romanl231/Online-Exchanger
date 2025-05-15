@@ -23,8 +23,8 @@ jobs:
         run: dotnet restore backend/Exchanger.Tests/Exchanger.Tests.csproj
 
       - name: Build solution
-        run: dotnet build --no-restore
+        run: dotnet build backend/Exchanger.Tests/Exchanger.Tests.csproj --no-restore
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test backend/Exchanger.Tests/Exchanger.Tests.csproj --no-build --verbosity normal
 
