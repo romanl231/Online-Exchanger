@@ -1,7 +1,9 @@
-﻿namespace Exchanger.API.Services.IServices
+﻿using Exchanger.API.Enums.UploadToCloudErrors;
+
+namespace Exchanger.API.Services.IServices
 {
     public interface ICloudinaryService
     {
-        Task<string> UploadImageToCloudAsync(IFormFile file, Guid userId);
+        Task<CloudResult> UploadImageToCloudAsync(IFormFile file, Guid userId);
     }
 }

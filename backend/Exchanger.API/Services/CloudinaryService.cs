@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Exchanger.API.Enums.UploadToCloudErrors;
 using Exchanger.API.Services.IServices;
 
 namespace Exchanger.API.Services
@@ -31,9 +32,13 @@ namespace Exchanger.API.Services
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<string> UploadImageToCloudAsync(IFormFile image, Guid userId)
+        public async Task<CloudResult> UploadImageToCloudAsync(IFormFile image, Guid userId)
         {
-            ValidateImage(image);
+            var validationResult = ValidateImage(image);
+
+            if (validationResult != null)
+                return validationResult;
+
             using var stream = image.OpenReadStream();
             var uploadParams =  new ImageUploadParams
             {
@@ -41,17 +46,18 @@ namespace Exchanger.API.Services
                 Folder = "exchanger_profile_pics",
             };
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            return uploadResult.SecureUrl.AbsoluteUri;
+
+            return CloudResult.Success(uploadResult);
         }
 
         public string CreateFileName(IFormFile image, Guid userId)
         {
-            var dateTime = DateTime.UtcNow;
+            var dateTime = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
             var fileName = $"{userId}_{dateTime}{image.FileName}";
             return fileName;
         }
 
-        public void ValidateImage(IFormFile image)
+        public CloudResult? ValidateImage(IFormFile image)
         {
             if (image == null || image.Length == 0)
             {
@@ -60,13 +66,15 @@ namespace Exchanger.API.Services
 
             if (image.Length > _maxSizeInBytes)
             {
-                throw new InvalidDataException("Image size can't be more than 5 MB");
+                return CloudResult.Fail(CloudErrorCode.FileSize);
             }
 
             if (!_allowedTypes.Contains(image.ContentType))
             {
-                throw new InvalidDataException("Wrong file format");
+                return CloudResult.Fail(CloudErrorCode.FileFormat);
             }
+
+            return null;
         }
     }
 }
