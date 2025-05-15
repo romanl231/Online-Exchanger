@@ -8,6 +8,7 @@ namespace Exchanger.API.Enums.UploadToCloudErrors
         {
             { CloudErrorCode.FileFormat, "Invalid file format." },
             { CloudErrorCode.FileSize, "Size of file can't be more than 5MB" },
+            { CloudErrorCode.UnexpectedCloudError, "An unexpected error occured while saving image to cloud" },
         };
     }
 }

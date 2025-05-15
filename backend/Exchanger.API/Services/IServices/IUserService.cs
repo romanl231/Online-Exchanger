@@ -1,5 +1,6 @@
 ﻿using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.Enums.AuthErrors;
+using Exchanger.API.Enums.UploadToCloudErrors;
 
 namespace Exchanger.API.Services.IServices
 {
@@ -11,6 +12,6 @@ namespace Exchanger.API.Services.IServices
         AuthErrorCode? ValidateUserPassword(string password);
         Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO, Guid userId); 
         Task<AuthResult> CheckDoesPasswordsMatches(AuthDTO authDTO);
-        Task<AuthResult> UploadAvatarAsync(IFormFile image, Guid userId);
+        Task<CloudResult> UploadAvatarAsync(IFormFile image, Guid userId);
     }
 }

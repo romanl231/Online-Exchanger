@@ -4,5 +4,6 @@
     {
         FileFormat,
         FileSize,
+        UnexpectedCloudError,
     }
 }

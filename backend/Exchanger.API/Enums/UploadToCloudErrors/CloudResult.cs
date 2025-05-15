@@ -8,7 +8,7 @@ namespace Exchanger.API.Enums.UploadToCloudErrors
     public class CloudResult
     {
         public bool IsSuccess { get; init; }
-        public ImageUploadResult UploadResult { get; init; }
+        public ImageUploadResult? UploadResult { get; init; }
         public CloudErrorCode? ErrorCode { get; init; }
 
         public static CloudResult Success(ImageUploadResult uploadResult) => new() 
@@ -16,6 +16,12 @@ namespace Exchanger.API.Enums.UploadToCloudErrors
             IsSuccess = true, 
             UploadResult = uploadResult, 
         };
+
+        public static CloudResult Success() => new()
+        {
+            IsSuccess = true,
+        };
+
         public static CloudResult Fail(CloudErrorCode error) => new() 
         { 
             IsSuccess = false, 
