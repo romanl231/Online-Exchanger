@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CloudinaryDotNet.Actions;
+using System.ComponentModel.DataAnnotations;
 
 namespace Exchanger.API.Entities
 {
@@ -25,6 +26,7 @@ namespace Exchanger.API.Entities
         [StringLength(500)]
         public string AvatarUrl { get; set; }
 
-        public ICollection<SessionToken> SessionTokens { get; set; }
+        public ICollection<SessionToken> SessionTokens { get; set; } = new List<SessionToken>();
+        public ICollection<Listing> Listings { get; set; } = new List<Listing>();
     }
 }
