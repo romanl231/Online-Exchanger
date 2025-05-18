@@ -1,13 +1,10 @@
 ﻿using Exchanger.API.Data;
+using Exchanger.API.DTOs.ListingDTOs;
 using Exchanger.API.Entities;
 using Exchanger.API.Repositories;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 namespace Exchanger.Tests.ListingTests
 {
@@ -22,12 +19,9 @@ namespace Exchanger.Tests.ListingTests
             return new AppDbContext(options);
         }
 
-        [Fact]
-        public async Task Should_Create_Listing()
+        private async Task<(Guid userId, List<Listing> listings)> SeedDbAsync(AppDbContext context)
         {
-            using var context = CreateContext();
-
-            context.Users.AddRange(new List<User>
+            var users = new List<User>
             {
             new User
             {
@@ -55,23 +49,70 @@ namespace Exchanger.Tests.ListingTests
                 Surname = "MyLastname",
                 AvatarUrl = "MyAvatar",
             }
-            });
+        };
 
-            context.Categories.AddRange(new List<Category> {
-                new Category
+            var categories = new List<Category>
+            {
+            new Category { Id = 1, Name = "Name1" },
+            new Category { Id = 2, Name = "Name2" },
+            new Category { Id = 3, Name = "Name3" }
+            };
+
+            await context.Users.AddRangeAsync(users);
+            await context.Categories.AddRangeAsync(categories);
+            await context.SaveChangesAsync();
+
+            var userId = users.First().Id;
+            var listings = new List<Listing>();
+
+            for (int i = 0; i < 30; i++)
+            {
+                var listingId = Guid.NewGuid();
+                var listing = new Listing
                 {
-                    Id = 1,
-                    Name = "Name",
-                },
-                new Category {
-                    Id = 2,
-                    Name = "Name",
-                },
-                new Category {
-                    Id = 3,
-                    Name = "Name",
-                }
-            });
+                    Id = listingId,
+                    Title = $"Title {i}",
+                    Description = $"Description {i}",
+                    UserId = userId,
+                    IsActive = true,
+                    Price = 10 + i,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
+                };
+
+
+
+                var images = new List<ListingImages>
+                {
+                new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_1", ListingId = listingId },
+                new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_2", ListingId = listingId }
+                };
+
+                var listingCategories = new List<ListingCategory>
+                {
+                new ListingCategory { CategoryId = 1, ListingId = listingId },
+                new ListingCategory { CategoryId = 2, ListingId = listingId },
+                };
+
+                await context.ListingImages.AddRangeAsync(images);
+                await context.ListingCategories.AddRangeAsync(listingCategories);
+
+                listings.Add(listing);
+            }
+
+            await context.Listing.AddRangeAsync(listings);
+            await context.SaveChangesAsync();
+
+            return (userId, listings);
+        }
+
+
+        [Fact]
+        public async Task Should_Create_Listing()
+        {
+            using var context = CreateContext();
+
+            var (userId, listings) = await SeedDbAsync(context);
 
             await context.SaveChangesAsync();
 
@@ -130,18 +171,18 @@ namespace Exchanger.Tests.ListingTests
 
             var listingRepository = new ListingRepository(context);
             var result = await listingRepository.AddAsync(
-                listingEntity, 
-                listingImages, 
+                listingEntity,
+                listingImages,
                 listingCategories
                 );
 
             Assert.True(result);
             var listing = context.Listing.First();
-            Assert.NotNull( listing);
+            Assert.NotNull(listing);
             var listingImagesCheck = context.ListingImages.First();
-            Assert.NotNull( listingImagesCheck);
+            Assert.NotNull(listingImagesCheck);
             var listingImageCategory = context.ListingCategories.First();
-            Assert.NotNull( listingImageCategory);
+            Assert.NotNull(listingImageCategory);
         }
 
         [Fact]
@@ -149,56 +190,9 @@ namespace Exchanger.Tests.ListingTests
         {
             using var context = CreateContext();
 
-            context.Users.AddRange(new List<User>
-            {
-            new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "examplemail@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            },
-            new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "anotherexampleemail@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            },
-            new User {
-                Id = Guid.NewGuid(),
-                Email = "imtiredofparcingdata@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            }
-            });
-
-            context.Categories.AddRange(new List<Category> {
-                new Category
-                {
-                    Id = 1,
-                    Name = "Name",
-                },
-                new Category {
-                    Id = 2,
-                    Name = "Name",
-                },
-                new Category {
-                    Id = 3,
-                    Name = "Name",
-                }
-            });
+            var (userId, listings) = await SeedDbAsync(context);
 
             await context.SaveChangesAsync();
-
-            var userId = context.Users.First().Id;
-            var listings = new List<Listing>();
 
             for (int i = 0; i < 30; i++)
             {
@@ -226,6 +220,84 @@ namespace Exchanger.Tests.ListingTests
             var result2 = await listingRepository.GetListingInfoByUserIdAsync(userId, lastGuid, 15);
             result2.Should().NotBeEmpty();
             result2.Should().HaveCount(15);
+        }
+
+        [Fact]
+        public async Task Should_Return_By_Params()
+        {
+            using var context = CreateContext();
+            var (userId, listings) = await SeedDbAsync(context);
+            var listingParams = new ListingParams
+            {
+                MaxValue = 18m,
+                MinValue = 13m,
+                Categories = new List<Category>
+                {
+                    context.Categories.First(c => c.Id == 1),
+                    context.Categories.First(c => c.Id == 2),
+                }
+            };
+
+            var category = context.Categories.First();
+
+            var listingRepository = new ListingRepository(context);
+            var result = await listingRepository.GetListingByParamsAsync(listingParams);
+            result.Should().NotBeEmpty();
+            result[1].Price.Should().BeInRange(13m, 18m);
+            result.Should().OnlyContain(l => l.Price >= 13m && l.Price <= 18m);
+            result.Should().OnlyContain(l => l.Categories.All(c => c.Id == 1 || c.Id == 2),
+            "all categories are 1 or 2");
+        }
+
+        private AppDbContext CreateSqliteContext()
+        {
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlite(connection)
+                .Options;
+
+            var ctx = new AppDbContext(options);
+            ctx.Database.EnsureCreated();
+            return ctx;
+        }
+
+        [Fact]
+        public async Task SearchByTitleAsync_ShouldReturn_ExactAndFuzzyMatches()
+        {
+            // Arrange
+            await using var context = CreateSqliteContext();
+
+            var user = new User { Id = Guid.NewGuid(), Email = "a@b.c", PasswordHash = "x", Name = "N", Surname = "S", AvatarUrl = "" };
+            context.Users.Add(user);
+
+            var listings = new[]
+            {
+                    new Listing { Id=Guid.NewGuid(), Title="Title 1", Description="", UserId=user.Id, IsActive=true, Price=1, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
+                    new Listing { Id=Guid.NewGuid(), Title="Title 2", Description="", UserId=user.Id, IsActive=true, Price=2, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
+                    new Listing { Id=Guid.NewGuid(), Title="Best Title Ever", Description="", UserId=user.Id, IsActive=true, Price=3, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
+                    new Listing { Id=Guid.NewGuid(), Title="Nothing to do with query", Description="", UserId=user.Id, IsActive=true, Price=4, Created=DateTime.UtcNow, Updated=DateTime.UtcNow }
+                };
+            context.Listing.AddRange(listings);
+            await context.SaveChangesAsync();
+
+            var repo = new ListingRepository(context);
+
+            // Act: запит з помилкою (ми пропустили одну літеру “i” — “Ttle 1”)
+            var result = await repo.SearchByTitleAsync("Ttle 1");
+
+            // Assert
+            // має знайти “Title 1” завдяки EF.Functions.Like
+            result.Should().Contain(dto => dto.Title == "Title 1");
+
+            // має знайти “Best Title Ever” завдяки нечіткій відповідності (FuzzySharp)
+            result.Should().Contain(dto => dto.Title == "Best Title Ever");
+
+            // не має містити запис із зовсім нерелевантним заголовком
+            result.Should().NotContain(dto => dto.Title == "Nothing to do with query");
+
+            // перевіримо, що кількість результатів не надто велика (наприклад, не більше трьох)
+            result.Count.Should().BeLessThanOrEqualTo(3);
         }
     }
 }

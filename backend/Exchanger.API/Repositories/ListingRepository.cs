@@ -30,6 +30,16 @@ namespace Exchanger.API.Repositories
             return new List<DisplayListingDTO>();
         }
 
+        public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams)
+        {
+            return new List<DisplayListingDTO>();
+        }
+
+        public async Task<List<DisplayListingDTO>> SearchByTitleAsync(string title)
+        {
+            return new List<DisplayListingDTO>();
+        }
+
         public async Task<Listing> GetListingByIdAsync(Guid listingId)
         {
             return new Listing();

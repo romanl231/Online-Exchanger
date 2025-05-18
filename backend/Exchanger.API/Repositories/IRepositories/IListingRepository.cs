@@ -13,6 +13,8 @@ namespace Exchanger.API.Repositories.IRepositories
             Guid userId,
             Guid? lastListingId,
             int limit);
+        Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams);
+        Task<List<DisplayListingDTO>> SearchByTitleAsync(string title);
         Task<Listing> GetListingByIdAsync(Guid listingId);
         Task<DisplayListingDTO> GetListingInfoByIdAsync(Guid listingId);
         Task<bool> AddImageAsync(List<ListingImages> images);
