@@ -23,6 +23,15 @@ namespace Exchanger.API.Entities
         [Required]
         public decimal Price { get; set; }
 
+        [Required]
+        public bool IsActive { get; set; }
+
+        [Required]
+        public DateTime Created { get; set; }
+
+        [Required]
+        public DateTime Updated { get; set; }
+
         public ICollection<ListingImages> Images { get; set; } = new List<ListingImages>();
         public ICollection<ListingCategory> Categories { get; set; } = new List<ListingCategory>();
     }
