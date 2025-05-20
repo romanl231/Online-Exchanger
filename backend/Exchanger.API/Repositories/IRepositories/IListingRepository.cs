@@ -15,10 +15,10 @@ namespace Exchanger.API.Repositories.IRepositories
             int limit);
         Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams);
         Task<List<DisplayListingDTO>> SearchByTitleAsync(string title);
-        Task<Listing> GetListingByIdAsync(Guid listingId);
-        Task<DisplayListingDTO> GetListingInfoByIdAsync(Guid listingId);
+        Task<Listing?> GetListingByIdAsync(Guid listingId);
+        Task<DisplayListingDTO?> GetListingInfoByIdAsync(Guid listingId);
         Task<bool> AddImageAsync(List<ListingImages> images);
-        Task<bool> DeleteImageAsync(Guid listingId, string imageUrl);
+        Task<bool> DeleteImageAsync(ListingImages image);
         Task<bool> AddCategoryAsync(List<Category> categories);
         Task<bool> DeleteCategoryAsync(Guid listingId, int categoryId);
         Task<bool> UpdateListingAsync(Listing listing);

@@ -80,8 +80,6 @@ namespace Exchanger.Tests.ListingTests
                     Updated = DateTime.UtcNow,
                 };
 
-
-
                 var images = new List<ListingImages>
                 {
                 new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_1", ListingId = listingId },
@@ -188,15 +186,16 @@ namespace Exchanger.Tests.ListingTests
         [Fact]
         public async Task Should_GetPaginatedListing()
         {
+            // Arrange
             using var context = CreateContext();
+            var (userId, seededListings) = await SeedDbAsync(context);
+            // SeedDbAsync already saves users, categories, and initial listings
 
-            var (userId, listings) = await SeedDbAsync(context);
-
-            await context.SaveChangesAsync();
-
+            // Add additional listings
+            var newListings = new List<Listing>();
             for (int i = 0; i < 30; i++)
             {
-                listings.Add(new Listing
+                newListings.Add(new Listing
                 {
                     Id = Guid.NewGuid(),
                     Title = i.ToString(),
@@ -204,22 +203,26 @@ namespace Exchanger.Tests.ListingTests
                     UserId = userId,
                     IsActive = true,
                     Price = 10m,
-                    Created = DateTime.Now,
-                    Updated = DateTime.Now,
+                    Created = DateTime.UtcNow,
+                    Updated = DateTime.UtcNow,
                 });
             }
 
-            context.AddRange(listings);
-            context.SaveChanges();
+            await context.Listing.AddRangeAsync(newListings);
+            await context.SaveChangesAsync();
 
             var listingRepository = new ListingRepository(context);
-            var result = await listingRepository.GetListingInfoByUserIdAsync(userId, null, 15);
-            var lastGuid = result.Last().ListingId;
-            result.Should().NotBeEmpty();
-            result.Should().HaveCount(15);
-            var result2 = await listingRepository.GetListingInfoByUserIdAsync(userId, lastGuid, 15);
-            result2.Should().NotBeEmpty();
-            result2.Should().HaveCount(15);
+
+            // Act & Assert - first page
+            var firstPage = await listingRepository.GetListingInfoByUserIdAsync(userId, null, 15);
+            firstPage.Should().NotBeEmpty();
+            firstPage.Should().HaveCount(15);
+
+            // Act & Assert - second page
+            var lastGuidOfFirstPage = firstPage.Last().ListingId;
+            var secondPage = await listingRepository.GetListingInfoByUserIdAsync(userId, lastGuidOfFirstPage, 15);
+            secondPage.Should().NotBeEmpty();
+            secondPage.Should().HaveCount(15);
         }
 
         [Fact]
