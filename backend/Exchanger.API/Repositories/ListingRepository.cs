@@ -4,7 +4,8 @@ using Exchanger.API.Entities;
 using Exchanger.API.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
 using Exchanger.API.DTOs.AuthDTOs;
-using static System.Net.Mime.MediaTypeNames;
+using FuzzySharp;
+using Microsoft.AspNetCore.Routing.Matching;
 
 namespace Exchanger.API.Repositories
 {
@@ -37,7 +38,6 @@ namespace Exchanger.API.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
-
         }
 
         public async Task<List<DisplayListingDTO>> GetListingInfoByUserIdAsync(
@@ -57,49 +57,80 @@ namespace Exchanger.API.Repositories
                 query = query.Where(l => l.Created < lastCreatedAt);
             }
 
-            var page = await query
-                .OrderByDescending(l => l.Created)
-                .Include(l => l.User)
-                .Include(l => l.Categories).ThenInclude(lc => lc.Category)
-                .Include(l => l.Images)
-                .Select(l => new DisplayListingDTO
-                {
-                    ListingId       = l.Id,
-                    Title           = l.Title,
-                    Description     = l.Description,
-                    Price           = l.Price,
-                    CreatedAt       = l.Created,
-                    UpdatedAt       = l.Updated,
-                    PublisherInfo   = new DisplayUserInfoDTO
-                    {
-                        Email       = l.User.Email,
-                        FirstName   = l.User.Name,
-                        Surname     = l.User.Surname,
-                        AvatarUrl   = l.User.AvatarUrl,
-                    },
-                    Categories = l.Categories
-                        .Select(lc => lc.Category)
-                        .ToList(),
-                    ImageUrls = l.Images
-                        .Select(l => l.ImageUrl)
-                        .ToList(),
-                })
-                .Take(limit)
-                .ToListAsync();
+            var page = await MapListingDto(query, limit);
 
             return page
                 .OrderBy(dto => dto.CreatedAt)
                 .ToList();
         }
 
-        public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams)
+        public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(
+            ListingParams listingParams, 
+            Guid? lastListingId, 
+            int limit)
         {
-            return new List<DisplayListingDTO>();
+            var categories = await GetAllCategoriesAsync();
+            var categoryIds = categories.Select(c => c.Id).ToList();
+
+            var query = _context.Listing
+                .Include(l => l.Categories).ThenInclude(lc => lc.Category)
+                .Where(l => l.Price >= listingParams.MinValue && 
+                l.Price <= listingParams.MaxValue && 
+                l.Categories.Any(lc => categoryIds.Contains(lc.CategoryId)));
+           
+            if (lastListingId.HasValue)
+            {
+                var lastCreatedAt = _context.Listing
+                    .Where(l => l.Id == lastListingId.Value)
+                    .Select(l => l.Created)
+                    .FirstOrDefault();
+                query = query.Where(l => l.Created < lastCreatedAt);
+            }
+
+            var page = await MapListingDto(query, limit);
+
+            return page
+                .OrderBy(dto => dto.CreatedAt)
+                .ToList();
         }
 
-        public async Task<List<DisplayListingDTO>> SearchByTitleAsync(string title)
+        public async Task<List<DisplayListingDTO>> SearchByTitleAsync(
+            string title,
+            Guid? lastListingId,
+            int limit)
         {
-            return new List<DisplayListingDTO>();
+            var lowerTitle = title.ToLower();
+
+            var baseQuery = _context.Listing
+                .Where(l => l.IsActive);
+
+            if (lastListingId.HasValue)
+            {
+                var lastCreatedAt = _context.Listing
+                    .Where(l => l.Id == lastListingId.Value)
+                    .Select(l => l.Created)
+                    .FirstOrDefault();
+
+                baseQuery = baseQuery.Where(l => l.Created < lastCreatedAt);
+            }
+
+            var allCandidates = await MapListingDto(baseQuery, limit * 3);
+
+            const int fuzzyThreshold = 70;
+
+            var results = allCandidates
+                .Where(dto =>
+                    dto.Title != null &&
+                    (
+                        dto.Title.ToLower().Contains(lowerTitle) ||         
+                        Fuzz.PartialRatio(title, dto.Title) >= fuzzyThreshold
+                    )
+                )
+                .OrderByDescending(dto => dto.CreatedAt)
+                .Take(limit)
+                .ToList();
+
+            return results;
         }
 
         public async Task<Listing?> GetListingByIdAsync(Guid listingId)
@@ -110,35 +141,9 @@ namespace Exchanger.API.Repositories
 
         public async Task<DisplayListingDTO?> GetListingInfoByIdAsync(Guid listingId)
         {
-            var listing = await _context.Listing
-                .Where(l => l.Id == listingId)
-                .Include(l => l.User)
-                .Include(l => l.Categories).ThenInclude(lc => lc.Category)
-                .Include(l => l.Images)
-                .Select(l => new DisplayListingDTO
-                {
-                    ListingId = l.Id,
-                    Title = l.Title,
-                    Description = l.Description,
-                    Price = l.Price,
-                    CreatedAt = l.Created,
-                    UpdatedAt = l.Updated,
-                    PublisherInfo = new DisplayUserInfoDTO
-                    {
-                        Email = l.User.Email,
-                        FirstName = l.User.Name,
-                        Surname = l.User.Surname,
-                        AvatarUrl = l.User.AvatarUrl,
-                    },
-                    Categories = l.Categories
-                        .Select(lc => lc.Category)
-                        .ToList(),
-                    ImageUrls = l.Images
-                        .Select(l => l.ImageUrl)
-                        .ToList(),
-                })
-                .FirstOrDefaultAsync();
-
+            var query = _context.Listing
+                .Where(l => l.Id == listingId);
+            var listing = await MapListingDto(query);
             return listing;
         }
 
@@ -202,6 +207,70 @@ namespace Exchanger.API.Repositories
                 await _context.
                 Categories.
                 ToListAsync();
+        }
+
+        private async Task<List<DisplayListingDTO>> MapListingDto(IQueryable<Listing> query, int limit)
+        {
+            return await query
+                .OrderByDescending(l => l.Created)
+                .Include(l => l.User)
+                .Include(l => l.Categories).ThenInclude(lc => lc.Category)
+                .Include(l => l.Images)
+                .Select(l => new DisplayListingDTO
+                {
+                    ListingId = l.Id,
+                    Title = l.Title,
+                    Description = l.Description,
+                    Price = l.Price,
+                    CreatedAt = l.Created,
+                    UpdatedAt = l.Updated,
+                    PublisherInfo = new DisplayUserInfoDTO
+                    {
+                        Email = l.User.Email,
+                        FirstName = l.User.Name,
+                        Surname = l.User.Surname,
+                        AvatarUrl = l.User.AvatarUrl,
+                    },
+                    Categories = l.Categories
+                        .Select(lc => lc.Category)
+                        .ToList(),
+                    ImageUrls = l.Images
+                        .Select(l => l.ImageUrl)
+                        .ToList(),
+                })
+                .Take(limit)
+                .ToListAsync();
+        }
+
+        private async Task<DisplayListingDTO?> MapListingDto(IQueryable<Listing> query)
+        {
+            return await query
+                .Include(l => l.User)
+                .Include(l => l.Categories).ThenInclude(lc => lc.Category)
+                .Include(l => l.Images)
+                .Select(l => new DisplayListingDTO
+                {
+                    ListingId = l.Id,
+                    Title = l.Title,
+                    Description = l.Description,
+                    Price = l.Price,
+                    CreatedAt = l.Created,
+                    UpdatedAt = l.Updated,
+                    PublisherInfo = new DisplayUserInfoDTO
+                    {
+                        Email = l.User.Email,
+                        FirstName = l.User.Name,
+                        Surname = l.User.Surname,
+                        AvatarUrl = l.User.AvatarUrl,
+                    },
+                    Categories = l.Categories
+                        .Select(lc => lc.Category)
+                        .ToList(),
+                    ImageUrls = l.Images
+                        .Select(l => l.ImageUrl)
+                        .ToList(),
+                })
+                .FirstOrDefaultAsync();
         }
     }
 }

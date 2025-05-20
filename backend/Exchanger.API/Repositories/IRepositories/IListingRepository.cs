@@ -13,13 +13,13 @@ namespace Exchanger.API.Repositories.IRepositories
             Guid userId,
             Guid? lastListingId,
             int limit);
-        Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams);
-        Task<List<DisplayListingDTO>> SearchByTitleAsync(string title);
+        Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams, Guid? lastListingId, int limit);
+        Task<List<DisplayListingDTO>> SearchByTitleAsync(string title, Guid? lastListingId, int limit);
         Task<Listing?> GetListingByIdAsync(Guid listingId);
         Task<DisplayListingDTO?> GetListingInfoByIdAsync(Guid listingId);
         Task<bool> AddImageAsync(List<ListingImages> images);
-        Task<bool> DeleteImageAsync(ListingImages image);
-        Task<bool> AddCategoryAsync(List<Category> categories);
+        Task<bool> DeleteImageAsync(Guid listingId, string avatarUrl);
+        Task<bool> AddCategoryAsync(List<ListingCategory> categories);
         Task<bool> DeleteCategoryAsync(Guid listingId, int categoryId);
         Task<bool> UpdateListingAsync(Listing listing);
         Task<bool> DeleteListingAsync(Listing listing);

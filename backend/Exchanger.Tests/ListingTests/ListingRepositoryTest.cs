@@ -10,15 +10,6 @@ namespace Exchanger.Tests.ListingTests
 {
     public class ListingRepositoryTest
     {
-        private AppDbContext CreateContext()
-        {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            return new AppDbContext(options);
-        }
-
         private async Task<(Guid userId, List<Listing> listings)> SeedDbAsync(AppDbContext context)
         {
             var users = new List<User>
@@ -53,9 +44,9 @@ namespace Exchanger.Tests.ListingTests
 
             var categories = new List<Category>
             {
-            new Category { Id = 1, Name = "Name1" },
-            new Category { Id = 2, Name = "Name2" },
-            new Category { Id = 3, Name = "Name3" }
+                new Category { Name = "Name1" },
+                new Category { Name = "Name2" },
+                new Category { Name = "Name3" }
             };
 
             await context.Users.AddRangeAsync(users);
@@ -108,7 +99,7 @@ namespace Exchanger.Tests.ListingTests
         [Fact]
         public async Task Should_Create_Listing()
         {
-            using var context = CreateContext();
+            using var context = CreateSqliteContext();
 
             var (userId, listings) = await SeedDbAsync(context);
 
@@ -187,7 +178,7 @@ namespace Exchanger.Tests.ListingTests
         public async Task Should_GetPaginatedListing()
         {
             // Arrange
-            using var context = CreateContext();
+            using var context = CreateSqliteContext();
             var (userId, seededListings) = await SeedDbAsync(context);
             // SeedDbAsync already saves users, categories, and initial listings
 
@@ -228,7 +219,7 @@ namespace Exchanger.Tests.ListingTests
         [Fact]
         public async Task Should_Return_By_Params()
         {
-            using var context = CreateContext();
+            using var context = CreateSqliteContext();
             var (userId, listings) = await SeedDbAsync(context);
             var listingParams = new ListingParams
             {
@@ -244,7 +235,7 @@ namespace Exchanger.Tests.ListingTests
             var category = context.Categories.First();
 
             var listingRepository = new ListingRepository(context);
-            var result = await listingRepository.GetListingByParamsAsync(listingParams);
+            var result = await listingRepository.GetListingByParamsAsync(listingParams, null, 15);
             result.Should().NotBeEmpty();
             result[1].Price.Should().BeInRange(13m, 18m);
             result.Should().OnlyContain(l => l.Price >= 13m && l.Price <= 18m);
@@ -261,6 +252,7 @@ namespace Exchanger.Tests.ListingTests
                 .Options;
 
             var ctx = new AppDbContext(options);
+            ctx.Database.EnsureDeleted();
             ctx.Database.EnsureCreated();
             return ctx;
         }
@@ -287,7 +279,7 @@ namespace Exchanger.Tests.ListingTests
             var repo = new ListingRepository(context);
 
             // Act: запит з помилкою (ми пропустили одну літеру “i” — “Ttle 1”)
-            var result = await repo.SearchByTitleAsync("Ttle 1");
+            var result = await repo.SearchByTitleAsync("Ttle 1", null, 15);
 
             // Assert
             // має знайти “Title 1” завдяки EF.Functions.Like
