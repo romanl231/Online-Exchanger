@@ -42,8 +42,9 @@ namespace Exchanger.API.Services
 
             if (!await _userRepository.AddAsync(user))
                 throw new InvalidOperationException("An error ocurred while saving user to database");
-            
-            return AuthResult.Success(user);
+
+            var result = MapUserToDisplayUserInfoDTO(user);
+            return AuthResult.Success(result);
         }
 
         public User MapAuthDtoToUser(AuthDTO authDTO)

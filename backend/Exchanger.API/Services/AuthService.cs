@@ -18,7 +18,7 @@ namespace Exchanger.API.Services
         public async Task<AuthResult> LoginAsync(AuthDTO authDTO, SessionInfo sessionInfo)
         {
             var result = await _userService.CheckDoesPasswordsMatches(authDTO);
-            if(result.ErrorCode != null)
+            if(!result.IsSuccess)
                 return result;
 
             var session = await _tokenService.StartSessionAsync(result.User.Id, sessionInfo);

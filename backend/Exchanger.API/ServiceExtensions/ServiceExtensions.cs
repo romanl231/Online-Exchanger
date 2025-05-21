@@ -20,10 +20,12 @@ namespace Exchanger.API.ServiceExtensions
             });
             services.AddScoped<ISessionTokenRepository, SessionTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IListingRepository, ListingRepository>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IListingService, ListingService>();
 
             services.AddSingleton<JWTSettings>();
             services.AddSingleton<ICloudinaryService, CloudinaryService>();

@@ -268,10 +268,44 @@ namespace Exchanger.Tests.ListingTests
 
             var listings = new[]
             {
-                    new Listing { Id=Guid.NewGuid(), Title="Title 1", Description="", UserId=user.Id, IsActive=true, Price=1, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
-                    new Listing { Id=Guid.NewGuid(), Title="Title 2", Description="", UserId=user.Id, IsActive=true, Price=2, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
-                    new Listing { Id=Guid.NewGuid(), Title="Best Title Ever", Description="", UserId=user.Id, IsActive=true, Price=3, Created=DateTime.UtcNow, Updated=DateTime.UtcNow },
-                    new Listing { Id=Guid.NewGuid(), Title="Nothing to do with query", Description="", UserId=user.Id, IsActive=true, Price=4, Created=DateTime.UtcNow, Updated=DateTime.UtcNow }
+                    new Listing { 
+                        Id=Guid.NewGuid(), 
+                        Title="Title 1", 
+                        Description="", 
+                        UserId=user.Id, 
+                        IsActive=true, 
+                        Price=1, 
+                        Created=DateTime.UtcNow, 
+                        Updated=DateTime.UtcNow },
+                    new Listing { 
+                        Id=Guid.NewGuid(), 
+                        Title="Title 2", Description="", 
+                        UserId=user.Id, 
+                        IsActive=true, 
+                        Price=2, 
+                        Created=DateTime.UtcNow, 
+                        Updated=DateTime.UtcNow 
+                    },
+                    new Listing { 
+                        Id=Guid.NewGuid(), 
+                        Title="Best Title Ever", 
+                        Description="", 
+                        UserId=user.Id, 
+                        IsActive=true, 
+                        Price=3, 
+                        Created=DateTime.UtcNow, 
+                        Updated=DateTime.UtcNow 
+                    },
+                    new Listing { 
+                        Id=Guid.NewGuid(), 
+                        Title="Nothing to do with query", 
+                        Description="", 
+                        UserId=user.Id, 
+                        IsActive=true, 
+                        Price=4, 
+                        Created=DateTime.UtcNow, 
+                        Updated=DateTime.UtcNow 
+                    }
                 };
             context.Listing.AddRange(listings);
             await context.SaveChangesAsync();
