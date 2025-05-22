@@ -3,7 +3,6 @@ using Exchanger.API.Entities;
 using Exchanger.API.Enums.ListingErrors;
 using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Services.IServices;
-using SQLitePCL;
 
 namespace Exchanger.API.Services
 {
