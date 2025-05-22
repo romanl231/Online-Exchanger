@@ -3,6 +3,7 @@ using Exchanger.API.Entities;
 using Exchanger.API.Enums.ListingErrors;
 using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Services.IServices;
+using SQLitePCL;
 
 namespace Exchanger.API.Services
 {
@@ -10,6 +11,7 @@ namespace Exchanger.API.Services
     {
         private readonly IListingRepository _listingRepository;
         private readonly ICloudinaryService _cloudinaryService;
+        private const int maxLimit = 15; //if input limit = 0, limit = maxLimit 
 
         public ListingService(
             IListingRepository listingRepository, 
@@ -22,7 +24,7 @@ namespace Exchanger.API.Services
         public async Task<ListingResult> CreateNewListingAsync(ListingCreationDTO dto, Guid userId)
         {
             if (userId == Guid.Empty)
-                throw new ArgumentNullException(nameof(userId));
+                return ListingResult.Fail(ListingErrorCode.InvalidUserId);
 
             var validationResult = EnsureCreationDTOValid(dto);
             if (!validationResult.IsSuccess)
@@ -34,7 +36,7 @@ namespace Exchanger.API.Services
 
             return saved
                 ? ListingResult.Success()
-                : ListingResult.Fail();
+                : ListingResult.Fail(ListingErrorCode.UnknownError);
         }
 
 
@@ -81,19 +83,19 @@ namespace Exchanger.API.Services
         public ListingResult EnsureCreationDTOValid(ListingCreationDTO listingCreationDTO)
         {
             if (listingCreationDTO == null)
-                throw new ArgumentNullException("DTO can't be null");
+                return ListingResult.Fail(ListingErrorCode.NullDto);
 
             if (!listingCreationDTO.CategoryIds.Any())
-                throw new ArgumentNullException("You can't create listing without category");
+                return ListingResult.Fail(ListingErrorCode.NoCategories);
 
-            if (listingCreationDTO.CategoryIds.Count() > 15)
-                throw new InvalidCastException("You can't choose more than 15 categories");
+            if (listingCreationDTO.CategoryIds.Count() > maxLimit)
+                return ListingResult.Fail(ListingErrorCode.TooManyCategories);
 
             if (!listingCreationDTO.Images.Any())
-                throw new ArgumentNullException("You can't create listing without images");
+                return ListingResult.Fail(ListingErrorCode.NoImages);
 
-            if (listingCreationDTO.Images.Count() > 15)
-                throw new InvalidCastException("You can't upload more than 15 images");
+            if (listingCreationDTO.Images.Count() > maxLimit)
+                return ListingResult.Fail(ListingErrorCode.TooManyImages);
 
             return ListingResult.Success();
         }
@@ -102,8 +104,18 @@ namespace Exchanger.API.Services
             Guid userId,
             Guid? lastListingId,
             int limit)
-        {
-            return ListingResult.Fail();
+        { 
+            if(userId == Guid.Empty) 
+                return ListingResult.Fail(ListingErrorCode.InvalidUserId);
+
+            if (limit == 0) { limit = NormalizeLimit(limit); }
+
+            var response = await _listingRepository.GetListingInfoByUserIdAsync(
+                userId, 
+                lastListingId, 
+                limit);
+
+            return ListingResult.Success(response);
         }
 
         public async Task<ListingResult> GetListingByParamsAsync(
@@ -111,7 +123,20 @@ namespace Exchanger.API.Services
             Guid? lastListingId,
             int limit)
         {
-            return ListingResult.Fail();
+            if (listingParams == null)
+                return ListingResult.Fail(ListingErrorCode.InvalidParams);
+
+            if (listingParams.Categories.Count == 0)
+            {
+                listingParams.Categories = await GetAllCategoriesAsync();
+            }
+
+            var response = await _listingRepository.GetListingByParamsAsync(
+                listingParams, 
+                lastListingId, 
+                limit);
+
+            return ListingResult.Success(response);
         }
 
         public async Task<ListingResult> SearchByTitleAsync(
@@ -119,31 +144,68 @@ namespace Exchanger.API.Services
             Guid? lastListingId,
             int limit)
         {
-            return ListingResult.Fail();
+            if(string.IsNullOrEmpty(title))
+                return ListingResult.Fail(ListingErrorCode.InvalidTitle);
+
+            if (limit == 0) { limit = NormalizeLimit(limit); }
+
+            var result = await _listingRepository.SearchByTitleAsync(
+                title, 
+                lastListingId, 
+                limit);
+
+            return ListingResult.Success(result);
         }
 
         public async Task<ListingResult> DeactivateListingAsync(
             Guid listingId)
         {
-            return ListingResult.Fail();
+            var listing = await _listingRepository.GetListingByIdAsync(listingId);
+
+            if (listing == null)
+                return ListingResult.Fail(ListingErrorCode.ListingNotFound);
+
+            listing.Updated = DateTime.UtcNow;
+            listing.IsActive = false;
+            await _listingRepository.UpdateListingAsync(listing);
+            return ListingResult.Success();
         }
 
         public async Task<ListingResult> ActivateListingAsync(
             Guid listingId)
         {
-            return ListingResult.Fail();
+            var listing = await _listingRepository.GetListingByIdAsync(listingId);
+
+            if (listing == null)
+                return ListingResult.Fail(ListingErrorCode.ListingNotFound);
+
+            listing.Updated = DateTime.UtcNow;
+            listing.IsActive = true;
+            await _listingRepository.UpdateListingAsync(listing);
+            return ListingResult.Success();
         }
 
         public async Task<ListingResult> DeleteListingAsync(
             Guid listingId,
             Guid userId)
         {
-            return ListingResult.Fail();
+            var listing = await _listingRepository.GetListingByIdAsync(listingId);
+
+            if (listing == null)
+                return ListingResult.Fail(ListingErrorCode.ListingNotFound);
+
+            if (listing.UserId != userId)
+                return ListingResult.Fail(ListingErrorCode.UnauthorizedAccess);
+
+            await _listingRepository.DeleteListingAsync(listing);
+            return ListingResult.Success();
         }
 
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
-            return new List<Category>();
+            return await _listingRepository.GetAllCategoriesAsync();
         }
+
+        private int NormalizeLimit(int limit) => limit == 0 ? maxLimit : limit;
     }
 }
