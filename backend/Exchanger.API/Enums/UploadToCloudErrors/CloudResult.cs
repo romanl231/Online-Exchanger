@@ -9,12 +9,19 @@ namespace Exchanger.API.Enums.UploadToCloudErrors
     {
         public bool IsSuccess { get; init; }
         public ImageUploadResult? UploadResult { get; init; }
+        public List<ImageUploadResult>? UploadResults { get; init; }
         public CloudErrorCode? ErrorCode { get; init; }
 
         public static CloudResult Success(ImageUploadResult uploadResult) => new() 
         { 
             IsSuccess = true, 
             UploadResult = uploadResult, 
+        };
+
+        public static CloudResult Success(List<ImageUploadResult> uploadResults) => new()
+        {
+            IsSuccess = true,
+            UploadResults = uploadResults,
         };
 
         public static CloudResult Success() => new()

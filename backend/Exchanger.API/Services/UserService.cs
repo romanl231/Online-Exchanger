@@ -141,7 +141,7 @@ namespace Exchanger.API.Services
             if (user == null)
                 throw new ArgumentNullException("Wrong userId");
 
-            var cloudResponse = await _cloudinaryService.UploadImageToCloudAsync(image, userId);
+            var cloudResponse = await _cloudinaryService.UploadAvatarToCloudAsync(image, userId);
 
             if (cloudResponse == null || !cloudResponse.IsSuccess)
                 return cloudResponse ?? CloudResult.Fail(CloudErrorCode.UnexpectedCloudError);
