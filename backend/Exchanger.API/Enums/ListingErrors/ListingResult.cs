@@ -9,8 +9,15 @@ namespace Exchanger.API.Enums.ListingErrors
         public bool IsSuccess { get; init; }
         public DisplayListingDTO? Listing { get; init; }
         public List<DisplayListingDTO>? Listings { get; init; }
+        public Listing? ListingEntity { get; init; }
         public ListingErrorCode? ErrorCode { get; init; }
-        
+
+        public static ListingResult Success(Listing listingEntity) => new()
+        {
+            IsSuccess = true,
+            ListingEntity = listingEntity
+        };
+
         public static ListingResult Success(DisplayListingDTO listing) => new() 
         { 
             IsSuccess = true, 

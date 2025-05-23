@@ -45,10 +45,10 @@ namespace Exchanger.API.Services.IServices
 
     public interface IListingCategoryService
     {
-        Task<ListingResult> AddCategoryAsync(
+        Task<ListingResult> AddCategorysAsync(
             Guid userId,
             Guid listingId,
-            int categoryId);
+            int[] categoryIds);
         Task<ListingResult> DeleteCategoryAsync(
             Guid listingId,
             Guid userId,
