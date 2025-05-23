@@ -229,13 +229,18 @@ namespace Exchanger.Tests.ListingTests
                 {
                     context.Categories.First(c => c.Id == 1),
                     context.Categories.First(c => c.Id == 2),
+                },
+                Pagination = new PaginationDTO
+                {
+                    LastId = null,
+                    Limit = 15,
                 }
             };
 
             var category = context.Categories.First();
 
             var listingRepository = new ListingRepository(context);
-            var result = await listingRepository.GetListingByParamsAsync(listingParams, null, 15);
+            var result = await listingRepository.GetListingByParamsAsync(listingParams);
             result.Should().NotBeEmpty();
             result[1].Price.Should().BeInRange(13m, 18m);
             result.Should().OnlyContain(l => l.Price >= 13m && l.Price <= 18m);
