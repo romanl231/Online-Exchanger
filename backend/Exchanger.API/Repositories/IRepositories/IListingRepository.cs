@@ -14,9 +14,7 @@ namespace Exchanger.API.Repositories.IRepositories
             Guid? lastListingId,
             int limit);
         Task<List<DisplayListingDTO>> GetListingByParamsAsync(
-            ListingParams listingParams, 
-            Guid? lastListingId, 
-            int limit);
+            ListingParams listingParams);
         Task<List<DisplayListingDTO>> SearchByTitleAsync(
             string title, 
             Guid? lastListingId, 

@@ -60,5 +60,10 @@ namespace Exchanger.API.Services
 
             return ListingResult.Success(listing);
         }
+
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            return await _listingRepository.GetAllCategoriesAsync();
+        }
     }
 }

@@ -3,6 +3,7 @@ using Exchanger.API.Entities;
 using Exchanger.API.Enums.ListingErrors;
 using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Services.IServices;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Exchanger.API.Services
 {
@@ -118,9 +119,7 @@ namespace Exchanger.API.Services
         }
 
         public async Task<ListingResult> GetListingByParamsAsync(
-            ListingParams listingParams,
-            Guid? lastListingId,
-            int limit)
+            ListingParams listingParams)
         {
             if (listingParams == null)
                 return ListingResult.Fail(ListingErrorCode.InvalidParams);
@@ -130,10 +129,7 @@ namespace Exchanger.API.Services
                 listingParams.Categories = await GetAllCategoriesAsync();
             }
 
-            var response = await _listingRepository.GetListingByParamsAsync(
-                listingParams, 
-                lastListingId, 
-                limit);
+            var response = await _listingRepository.GetListingByParamsAsync(listingParams);
 
             return ListingResult.Success(response);
         }
@@ -157,12 +153,16 @@ namespace Exchanger.API.Services
         }
 
         public async Task<ListingResult> DeactivateListingAsync(
-            Guid listingId)
+            Guid listingId,
+            Guid userId)
         {
             var listing = await _listingRepository.GetListingByIdAsync(listingId);
 
             if (listing == null)
                 return ListingResult.Fail(ListingErrorCode.ListingNotFound);
+
+            if(listing.UserId != userId)
+                return ListingResult.Fail(ListingErrorCode.UnauthorizedAccess);
 
             listing.Updated = DateTime.UtcNow;
             listing.IsActive = false;
@@ -171,12 +171,16 @@ namespace Exchanger.API.Services
         }
 
         public async Task<ListingResult> ActivateListingAsync(
-            Guid listingId)
+            Guid listingId,
+            Guid userId)
         {
             var listing = await _listingRepository.GetListingByIdAsync(listingId);
 
             if (listing == null)
                 return ListingResult.Fail(ListingErrorCode.ListingNotFound);
+
+            if (listing.UserId != userId)
+                return ListingResult.Fail(ListingErrorCode.UnauthorizedAccess);
 
             listing.Updated = DateTime.UtcNow;
             listing.IsActive = true;
@@ -200,7 +204,7 @@ namespace Exchanger.API.Services
             return ListingResult.Success();
         }
 
-        public async Task<List<Category>> GetAllCategoriesAsync()
+        private async Task<List<Category>> GetAllCategoriesAsync()
         {
             return await _listingRepository.GetAllCategoriesAsync();
         }

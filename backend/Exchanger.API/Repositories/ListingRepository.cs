@@ -65,9 +65,7 @@ namespace Exchanger.API.Repositories
         }
 
         public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(
-            ListingParams listingParams, 
-            Guid? lastListingId, 
-            int limit)
+            ListingParams listingParams)
         {
             var categories = await GetAllCategoriesAsync();
             var categoryIds = categories.Select(c => c.Id).ToList();
@@ -78,16 +76,16 @@ namespace Exchanger.API.Repositories
                 l.Price <= listingParams.MaxValue && 
                 l.Categories.Any(lc => categoryIds.Contains(lc.CategoryId)));
            
-            if (lastListingId.HasValue)
+            if (listingParams.Pagination.LastId.HasValue)
             {
                 var lastCreatedAt = _context.Listing
-                    .Where(l => l.Id == lastListingId.Value)
+                    .Where(l => l.Id == listingParams.Pagination.LastId.Value)
                     .Select(l => l.Created)
                     .FirstOrDefault();
                 query = query.Where(l => l.Created < lastCreatedAt);
             }
 
-            var page = await MapListingDto(query, limit);
+            var page = await MapListingDto(query, listingParams.Pagination.Limit);
 
             return page
                 .OrderBy(dto => dto.CreatedAt)

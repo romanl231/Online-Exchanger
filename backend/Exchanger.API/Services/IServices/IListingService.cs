@@ -14,21 +14,20 @@ namespace Exchanger.API.Services.IServices
             Guid? lastListingId, 
             int limit);
         Task<ListingResult> GetListingByParamsAsync(
-            ListingParams listingParams, 
-            Guid? lastListingId, 
-            int limit);
+            ListingParams listingParams);
         Task<ListingResult> SearchByTitleAsync(
             string title,
             Guid? lastListingId,
             int limit);
         Task<ListingResult> DeactivateListingAsync(
-            Guid listingId);
+            Guid listingId,
+            Guid userId);
         Task<ListingResult> ActivateListingAsync(
-            Guid listingId);
+            Guid listingId,
+            Guid userId);
         Task<ListingResult> DeleteListingAsync(
             Guid listingId,
             Guid userId);
-        Task<List<Category>> GetAllCategoriesAsync();
     }
 
     public interface IListingImageService
@@ -53,5 +52,7 @@ namespace Exchanger.API.Services.IServices
             Guid listingId,
             Guid userId,
             int categoryId);
+
+        Task<List<Category>> GetAllCategoriesAsync();
     }
 }
