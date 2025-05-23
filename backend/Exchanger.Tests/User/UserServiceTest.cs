@@ -330,7 +330,7 @@ namespace Exchanger.Tests.UserTest
 
             var mockCloudServ = new Mock<ICloudinaryService>();
 
-            mockCloudServ.Setup(s => s.UploadImageToCloudAsync(It.IsAny<IFormFile>(), It.IsAny<Guid>()))
+            mockCloudServ.Setup(s => s.UploadAvatarToCloudAsync(It.IsAny<IFormFile>(), It.IsAny<Guid>()))
                 .ReturnsAsync((IFormFile image, Guid userId) =>
                 {
                     return CloudResult.Success(GetFakeUploadResult());

@@ -73,20 +73,15 @@ namespace Exchanger.Tests.AuthTests
             };
 
             var mockRepo = new Mock<ISessionTokenRepository>();
-            var inMemorySettings = new Dictionary<string, string>
+
+            var jwtSettings = new JWTSettings
             {
-                {"Jwt:Issuer", "TestIssuer"},
-                {"Jwt:Audience", "TestAudience"},
-                {"Jwt:Key", "lJ9IKbvi6gpoCRwW6Eyc7n1EDLyJve9QF4tnO3xGn5c="},
-                {"Jwt:TokenValidityInMinutes", "15"},
-                {"Jwt:RefreshTokenValidityInDays", "7"}
+                Issuer = "TestIssuer",
+                Audience = "TestAudience",
+                Key = "lJ9IKbvi6gpoCRwW6Eyc7n1EDLyJve9QF4tnO3xGn5c=",
+                AuthTokenValidityInMinutes = 10,
+                RefreshTokenValidityInDays = 2
             };
-
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            var jwtSettings = new JWTSettings(configuration);
 
             mockRepo.Setup(repo => repo.AddAsync(It.IsAny<SessionToken>()))
                     .ReturnsAsync(true);
@@ -201,20 +196,14 @@ namespace Exchanger.Tests.AuthTests
                     return Task.CompletedTask;
                 });
 
-            var inMemorySettings = new Dictionary<string, string>
+            var jwtSettings = new JWTSettings
             {
-                {"Jwt:Issuer", "TestIssuer"},
-                {"Jwt:Audience", "TestAudience"},
-                {"Jwt:Key", "lJ9IKbvi6gpoCRwW6Eyc7n1EDLyJve9QF4tnO3xGn5c="},
-                {"Jwt:TokenValidityInMinutes", "15"},
-                {"Jwt:RefreshTokenValidityInDays", "7"}
+                Issuer = "TestIssuer",
+                Audience = "TestAudience",
+                Key = "lJ9IKbvi6gpoCRwW6Eyc7n1EDLyJve9QF4tnO3xGn5c=",
+                AuthTokenValidityInMinutes = 10,
+                RefreshTokenValidityInDays = 2
             };
-
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            var jwtSettings = new JWTSettings(configuration);
 
 
             var tokenService = new TokenService(mockRepo.Object, jwtSettings);

@@ -7,7 +7,9 @@ namespace Exchanger.API.Exceptions
         public AuthErrorCode Code { get; }
 
         public AuthException(AuthErrorCode code)
-            : base(AuthErrorMessages.Messages.TryGetValue(code, out var msg) ? msg : "Unknown error")
+            : base(AuthErrorMessages
+                  .Messages
+                  .TryGetValue(code, out var msg) ? msg : "Unknown error")
         {
             Code = code;
         }

@@ -13,14 +13,5 @@ namespace Exchanger.API.DTOs.AuthDTOs
         public int AuthTokenValidityInMinutes { get; set; }
 
         public int RefreshTokenValidityInDays { get; set; }
-
-        public JWTSettings(IConfiguration config) 
-        {
-            Issuer = config["Jwt:Issuer"];
-            Audience = config["Jwt:Audience"];
-            Key = config["Jwt:Key"];
-            AuthTokenValidityInMinutes = config.GetValue<int>("Jwt:TokenValidityInMinutes");
-            RefreshTokenValidityInDays = config.GetValue<int>("Jwt:RefreshTokenValidityInDays");
-        }
     }
 }

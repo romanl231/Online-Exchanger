@@ -11,7 +11,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # appsettings
-appsettings.json
+appsettings.Development.json
 
 # dependencies
 /node_modules

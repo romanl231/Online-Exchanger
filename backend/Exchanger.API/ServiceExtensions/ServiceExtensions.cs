@@ -8,6 +8,9 @@ using Exchanger.API.Repositories;
 using Exchanger.API.Services.IServices;
 using Exchanger.API.Services;
 using Exchanger.API.DTOs.AuthDTOs;
+using Exchanger.API.DTOs.Cloudinary;
+using CloudinaryDotNet;
+using Microsoft.Extensions.Options;
 
 namespace Exchanger.API.ServiceExtensions
 {
@@ -20,13 +23,29 @@ namespace Exchanger.API.ServiceExtensions
             });
             services.AddScoped<ISessionTokenRepository, SessionTokenRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IListingRepository, ListingRepository>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IListingService, ListingService>();
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
 
-            services.AddSingleton<JWTSettings>();
-            services.AddSingleton<ICloudinaryService, CloudinaryService>();
+            services.AddSingleton<ICloudinaryClient, CloudinaryClient>();
+
+            services.Configure<JWTSettings>(
+                configuration.GetSection("Jwt"));
+            services.AddSingleton<JWTSettings>(provider =>
+                provider.GetRequiredService<IOptions<JWTSettings>>().Value);
+
+            services.Configure<CloudinarySettings>(
+                configuration.GetSection("Cloudinary"));
+            services.AddSingleton(provider =>
+            {
+                var settings = provider.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+                var account = new Account(settings.CloudName, settings.ApiKey, settings.ApiSecret);
+                return new Cloudinary(account);
+            });
         }
 
         public static void AddCustomAuthorization(this IServiceCollection services, IConfiguration configuration)
