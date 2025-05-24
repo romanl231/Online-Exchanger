@@ -26,6 +26,9 @@ namespace Exchanger.API.Entities
         [StringLength(500)]
         public string AvatarUrl { get; set; }
 
+        public bool IsEmailVerified { get; set; } = false;
+        public string EmailVerificationCode { get; set; } = string.Empty;
+
         public ICollection<SessionToken> SessionTokens { get; set; } = new List<SessionToken>();
         public ICollection<Listing> Listings { get; set; } = new List<Listing>();
     }
