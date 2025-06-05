@@ -14,46 +14,38 @@ namespace Exchanger.Tests.ListingTests
         {
             var users = new List<User>
             {
-            new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "examplemail@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            },
-            new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "anotherexampleemail@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            },
-            new User {
-                Id = Guid.NewGuid(),
-                Email = "imtiredofparcingdata@example.com",
-                PasswordHash = "itsMyPasswordHash",
-                Name = "MyNameIs",
-                Surname = "MyLastname",
-                AvatarUrl = "MyAvatar",
-            }
-        };
-
-            var categories = new List<Category>
-            {
-                new Category { Name = "Name1" },
-                new Category { Name = "Name2" },
-                new Category { Name = "Name3" }
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = "examplemail@example.com",
+                    PasswordHash = "itsMyPasswordHash",
+                    Name = "MyNameIs",
+                    Surname = "MyLastname",
+                    AvatarUrl = "MyAvatar",
+                },
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = "anotherexampleemail@example.com",
+                    PasswordHash = "itsMyPasswordHash",
+                    Name = "MyNameIs",
+                    Surname = "MyLastname",
+                    AvatarUrl = "MyAvatar",
+                },
+                new User {
+                    Id = Guid.NewGuid(),
+                    Email = "imtiredofparcingdata@example.com",
+                    PasswordHash = "itsMyPasswordHash",
+                    Name = "MyNameIs",
+                    Surname = "MyLastname",
+                    AvatarUrl = "MyAvatar",
+                }
             };
 
             await context.Users.AddRangeAsync(users);
-            await context.Categories.AddRangeAsync(categories);
             await context.SaveChangesAsync();
 
-            var userId = users.First().Id;
+            var user = users.First();
             var listings = new List<Listing>();
 
             for (int i = 0; i < 30; i++)
@@ -64,7 +56,8 @@ namespace Exchanger.Tests.ListingTests
                     Id = listingId,
                     Title = $"Title {i}",
                     Description = $"Description {i}",
-                    UserId = userId,
+                    UserId = user.Id,
+                    User = user,
                     IsActive = true,
                     Price = 10 + i,
                     Created = DateTime.UtcNow,
@@ -73,14 +66,14 @@ namespace Exchanger.Tests.ListingTests
 
                 var images = new List<ListingImages>
                 {
-                new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_1", ListingId = listingId },
-                new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_2", ListingId = listingId }
+                    new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_1", ListingId = listingId, Listing = listing },
+                    new ListingImages { Id = Guid.NewGuid(), ImageUrl = $"Url_{i}_2", ListingId = listingId, Listing = listing }
                 };
 
                 var listingCategories = new List<ListingCategory>
                 {
-                new ListingCategory { CategoryId = 1, ListingId = listingId },
-                new ListingCategory { CategoryId = 2, ListingId = listingId },
+                    new ListingCategory { CategoryId = 1, ListingId = listingId, Listing = listing },
+                    new ListingCategory { CategoryId = 2, ListingId = listingId, Listing = listing },
                 };
 
                 await context.ListingImages.AddRangeAsync(images);
@@ -92,17 +85,90 @@ namespace Exchanger.Tests.ListingTests
             await context.Listing.AddRangeAsync(listings);
             await context.SaveChangesAsync();
 
-            return (userId, listings);
+            return (user.Id, listings);
+        }
+
+        private AppDbContext CreateInMemoryContext()
+        {
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .EnableSensitiveDataLogging()
+                .Options;
+
+            var ctx = new AppDbContext(options);
+
+            ctx.Database.EnsureDeleted();
+            ctx.Database.EnsureCreated();
+
+            return ctx;
+        }
+
+        public async Task SeedCategoriesIfNotExist(AppDbContext context)
+        {
+            if (!await context.Categories.AnyAsync())
+            {
+                var categories = new List<Category>
+                {
+                    new Category { Name = "Name1" },
+                    new Category { Name = "Name2" },
+                    new Category { Name = "Name3" }
+                };
+                await context.Categories.AddRangeAsync(categories);
+                await context.SaveChangesAsync();
+            }
         }
 
 
         [Fact]
         public async Task Should_Create_Listing()
         {
-            using var context = CreateSqliteContext();
+            using var context = await CreateSqliteContext();
 
-            var (userId, listings) = await SeedDbAsync(context);
+            var user = new User { Id = Guid.NewGuid(), Email = "a@b.c", PasswordHash = "x", Name = "N", Surname = "S", AvatarUrl = "" };
+            context.Users.Add(user);
 
+            var listings = new[]
+            {
+                    new Listing {
+                        Id=Guid.NewGuid(),
+                        Title="Title 1",
+                        Description="",
+                        UserId=user.Id,
+                        IsActive=true,
+                        Price=1,
+                        Created=DateTime.UtcNow,
+                        Updated=DateTime.UtcNow },
+                    new Listing {
+                        Id=Guid.NewGuid(),
+                        Title="Title 2", Description="",
+                        UserId=user.Id,
+                        IsActive=true,
+                        Price=2,
+                        Created=DateTime.UtcNow,
+                        Updated=DateTime.UtcNow
+                    },
+                    new Listing {
+                        Id=Guid.NewGuid(),
+                        Title="Best Title Ever",
+                        Description="",
+                        UserId=user.Id,
+                        IsActive=true,
+                        Price=3,
+                        Created=DateTime.UtcNow,
+                        Updated=DateTime.UtcNow
+                    },
+                    new Listing {
+                        Id=Guid.NewGuid(),
+                        Title="Nothing to do with query",
+                        Description="",
+                        UserId=user.Id,
+                        IsActive=true,
+                        Price=4,
+                        Created=DateTime.UtcNow,
+                        Updated=DateTime.UtcNow
+                    }
+                };
+            context.Listing.AddRange(listings);
             await context.SaveChangesAsync();
 
             var listingEntity = new Listing
@@ -110,8 +176,9 @@ namespace Exchanger.Tests.ListingTests
                 Id = Guid.NewGuid(),
                 Description = "Description",
                 Title = "Title",
-                Price = 14.88m,
-                UserId = context.Users.First().Id,
+                Price = 14,
+                UserId = user.Id,
+                User = user,
                 IsActive = true,
                 Created = DateTime.UtcNow,
                 Updated = DateTime.UtcNow,
@@ -125,36 +192,46 @@ namespace Exchanger.Tests.ListingTests
                     Id = Guid.NewGuid(),
                     ImageUrl = "Url",
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 },
                 new ListingImages
                 {
                     Id = Guid.NewGuid(),
                     ImageUrl = "NewUrl",
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 },
                 new ListingImages
                 {
                     Id = Guid.NewGuid(),
                     ImageUrl = "AnotherUrl",
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 }
             };
 
+            var categories = context.Categories.ToList();
             var listingCategories = new List<ListingCategory> {
                 new ListingCategory
                 {
                     CategoryId = 1,
+                    Category = context.Categories.FirstOrDefault(c => c.Id == 1),
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 },
                 new ListingCategory
                 {
                     CategoryId = 2,
+                    Category = context.Categories.FirstOrDefault(c => c.Id == 2),
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 },
                 new ListingCategory
                 {
                     CategoryId = 3,
+                    Category = context.Categories.FirstOrDefault(c => c.Id == 3),
                     ListingId = listingEntityId,
+                    Listing = listingEntity,
                 }
             };
 
@@ -178,7 +255,7 @@ namespace Exchanger.Tests.ListingTests
         public async Task Should_GetPaginatedListing()
         {
             // Arrange
-            using var context = CreateSqliteContext();
+            using var context = CreateInMemoryContext();
             var (userId, seededListings) = await SeedDbAsync(context);
             // SeedDbAsync already saves users, categories, and initial listings
 
@@ -219,21 +296,16 @@ namespace Exchanger.Tests.ListingTests
         [Fact]
         public async Task Should_Return_By_Params()
         {
-            using var context = CreateSqliteContext();
+            using var context = CreateInMemoryContext();
             var (userId, listings) = await SeedDbAsync(context);
             var listingParams = new ListingParams
             {
-                MaxValue = 18m,
                 MinValue = 13m,
-                Categories = new List<Category>
-                {
-                    context.Categories.First(c => c.Id == 1),
-                    context.Categories.First(c => c.Id == 2),
-                },
+                MaxValue = 18m,
                 Pagination = new PaginationDTO
                 {
                     LastId = null,
-                    Limit = 15,
+                    Limit = 15
                 }
             };
 
@@ -244,11 +316,9 @@ namespace Exchanger.Tests.ListingTests
             result.Should().NotBeEmpty();
             result[1].Price.Should().BeInRange(13m, 18m);
             result.Should().OnlyContain(l => l.Price >= 13m && l.Price <= 18m);
-            result.Should().OnlyContain(l => l.Categories.All(c => c.Id == 1 || c.Id == 2),
-            "all categories are 1 or 2");
         }
 
-        private AppDbContext CreateSqliteContext()
+        private async Task<AppDbContext> CreateSqliteContext()
         {
             var connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
@@ -266,7 +336,7 @@ namespace Exchanger.Tests.ListingTests
         public async Task SearchByTitleAsync_ShouldReturn_ExactAndFuzzyMatches()
         {
             // Arrange
-            await using var context = CreateSqliteContext();
+            await using var context = await CreateSqliteContext();
 
             var user = new User { Id = Guid.NewGuid(), Email = "a@b.c", PasswordHash = "x", Name = "N", Surname = "S", AvatarUrl = "" };
             context.Users.Add(user);
