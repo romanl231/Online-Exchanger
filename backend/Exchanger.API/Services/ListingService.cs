@@ -124,9 +124,10 @@ namespace Exchanger.API.Services
             if (listingParams == null)
                 return ListingResult.Fail(ListingErrorCode.InvalidParams);
 
-            if (listingParams.Categories.Count == 0)
+            if (listingParams.CategoryIds.Count == 0)
             {
-                listingParams.Categories = await GetAllCategoriesAsync();
+                var categories = await GetAllCategoriesAsync();
+                listingParams.CategoryIds = categories.Select(c => c.Id).ToList();
             }
 
             var response = await _listingRepository.GetListingByParamsAsync(listingParams);

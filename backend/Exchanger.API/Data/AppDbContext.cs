@@ -26,6 +26,9 @@ namespace Exchanger.API.Data
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
             modelBuilder.Entity<Category>().HasData(
                 Enum.GetValues(typeof(CategorySeed))
                     .Cast<CategorySeed>()
@@ -35,9 +38,6 @@ namespace Exchanger.API.Data
                         Name = e.ToString()
                     })
             );
-            modelBuilder.Entity<Category>()
-                .HasIndex(c => c.Name)
-                .IsUnique();
 
             modelBuilder.Entity<Listing>()
                 .HasOne(l => l.User)

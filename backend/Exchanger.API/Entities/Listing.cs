@@ -10,15 +10,15 @@ namespace Exchanger.API.Entities
         [Required]
         public Guid UserId { get; set; }
         [Required]
-        public User User { get; set; }
+        public User User { get; set; } = new User();
 
         [Required]
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required]
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [Required]
         public decimal Price { get; set; }

@@ -8,6 +8,6 @@ namespace Exchanger.API.DTOs.ListingDTOs
         public Guid listingId { get; set; }
 
         [Required]
-        public List<IFormFile> files { get; set; }
+        public List<IFormFile> files { get; set; } = new List<IFormFile>();
     }
 }

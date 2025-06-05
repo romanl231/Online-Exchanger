@@ -6,19 +6,19 @@ namespace Exchanger.API.DTOs.ListingDTOs
     {
         [Required]
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required]
-        public List<IFormFile> Images { get; set; }
+        public List<IFormFile> Images { get; set; } = new List<IFormFile>();
 
         [Required]
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [Required]
         public decimal Price { get; set; }
 
         [Required]
-        public List<int> CategoryIds { get; set; }
+        public List<int> CategoryIds { get; set; } = new List<int>();
     }
 }

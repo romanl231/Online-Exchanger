@@ -6,10 +6,10 @@ namespace Exchanger.API.Entities
     {
         [Required]
         public Guid ListingId { get; set; }
-        public Listing Listing { get; set; }
+        public Listing Listing { get; set; } = new Listing();
 
         [Required]
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = new Category();
     }
 }

@@ -64,24 +64,25 @@ namespace Exchanger.API.Repositories
                 .ToList();
         }
 
-        public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(
-            ListingParams listingParams)
+        public async Task<List<DisplayListingDTO>> GetListingByParamsAsync(ListingParams listingParams)
         {
-            var categories = await GetAllCategoriesAsync();
-            var categoryIds = categories.Select(c => c.Id).ToList();
-
             var query = _context.Listing
                 .Include(l => l.Categories).ThenInclude(lc => lc.Category)
-                .Where(l => l.Price >= listingParams.MinValue && 
-                l.Price <= listingParams.MaxValue && 
-                l.Categories.Any(lc => categoryIds.Contains(lc.CategoryId)));
-           
+                .Where(l => l.Price >= listingParams.MinValue &&
+                            l.Price <= listingParams.MaxValue);
+
+            if (listingParams.CategoryIds?.Any() == true)
+            {
+                query = query.Where(l => l.Categories.Any(lc => listingParams.CategoryIds.Contains(lc.CategoryId)));
+            }
+
             if (listingParams.Pagination.LastId.HasValue)
             {
-                var lastCreatedAt = _context.Listing
+                var lastCreatedAt = await _context.Listing
                     .Where(l => l.Id == listingParams.Pagination.LastId.Value)
                     .Select(l => l.Created)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
+
                 query = query.Where(l => l.Created < lastCreatedAt);
             }
 
