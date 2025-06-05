@@ -64,9 +64,12 @@ namespace Exchanger.API.Controllers
         {
             if (!result.IsSuccess)
             {
-                if (AuthErrorMessages.Messages
-                    .TryGetValue(result.ErrorCode.Value, out var message))
-                    return BadRequest(message);
+                if (result.ErrorCode.HasValue)
+                {
+                    if (AuthErrorMessages.Messages
+                        .TryGetValue(result.ErrorCode.Value, out var message))
+                        return BadRequest(message);
+                }
 
                 return BadRequest("Unknown error");
             }
@@ -78,9 +81,12 @@ namespace Exchanger.API.Controllers
         {
             if (!result.IsSuccess)
             {
-                if (CloudErrorMessages.Messages
-                    .TryGetValue(result.ErrorCode.Value, out var message))
-                    return BadRequest(message);
+                if (result.ErrorCode.HasValue)
+                {
+                    if (CloudErrorMessages.Messages
+                        .TryGetValue(result.ErrorCode.Value, out var message))
+                        return BadRequest(message);
+                }
 
                 return BadRequest("Unknown error");
             }

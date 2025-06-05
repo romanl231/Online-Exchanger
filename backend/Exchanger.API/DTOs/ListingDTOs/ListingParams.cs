@@ -10,6 +10,6 @@ namespace Exchanger.API.DTOs.ListingDTOs
         public List<Category> Categories { get; set; } = new List<Category>();
 
         [Required]
-        public PaginationDTO Pagination { get; set; }
+        public PaginationDTO Pagination { get; set; } = new PaginationDTO();
     }
 }

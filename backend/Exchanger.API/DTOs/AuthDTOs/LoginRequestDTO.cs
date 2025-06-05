@@ -2,7 +2,7 @@
 {
     public class LoginRequestDTO
     {
-        public AuthDTO AuthDTO {  get; set; }
-        public SessionInfo SessionInfo { get; set; }
+        public AuthDTO AuthDTO {  get; set; } = new AuthDTO();
+        public SessionInfo SessionInfo { get; set; } = new SessionInfo();
     }
 }
