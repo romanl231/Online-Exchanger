@@ -15,6 +15,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Exchanger.API.DTOs.AuthDTOs;
 using Microsoft.Extensions.Configuration;
+using Exchanger.API.Services.IServices;
+using FluentAssertions;
 
 namespace Exchanger.Tests.AuthTests
 {
@@ -262,6 +264,28 @@ namespace Exchanger.Tests.AuthTests
                 Console.WriteLine("Token validation failed: " + ex.Message);
                 return null;
             }
+        }
+
+        [Fact]
+        public async Task ShoudGenerateEmailConfirmationCode()
+        {
+            var jwtSettings = new JWTSettings
+            {
+                Issuer = "TestIssuer",
+                Audience = "TestAudience",
+                Key = "lJ9IKbvi6gpoCRwW6Eyc7n1EDLyJve9QF4tnO3xGn5c=",
+                AuthTokenValidityInMinutes = 10,
+                RefreshTokenValidityInDays = 2
+            };
+
+            var sessionTokenRepository = new Mock<ISessionTokenRepository>();
+            var tokenService = new TokenService(sessionTokenRepository.Object, jwtSettings);
+
+            var userId = Guid.NewGuid();
+
+            var result = await tokenService.GenerateEmailConfirmationTokenAsync(userId);
+            result.IsSuccess.Should().BeTrue();
+            result.Token.Should().NotBeNullOrEmpty();
         }
     }
 }

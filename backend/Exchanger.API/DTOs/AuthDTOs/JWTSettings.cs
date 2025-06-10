@@ -13,5 +13,7 @@ namespace Exchanger.API.DTOs.AuthDTOs
         public int AuthTokenValidityInMinutes { get; set; }
 
         public int RefreshTokenValidityInDays { get; set; }
+
+        public int EmailJWTValidityInDays { get; set; }
     }
 }

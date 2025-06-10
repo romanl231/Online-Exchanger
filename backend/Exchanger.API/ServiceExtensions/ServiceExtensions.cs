@@ -34,6 +34,7 @@ namespace Exchanger.API.ServiceExtensions
             services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             services.AddSingleton<ICloudinaryClient, CloudinaryClient>();
+            services.AddSingleton<IEmailSenderService, EmailSenderService>();
 
             services.Configure<JWTSettings>(
                 configuration.GetSection("Jwt"));

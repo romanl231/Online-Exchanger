@@ -1,11 +1,13 @@
 ﻿using Exchanger.API.DTOs.AuthDTOs;
-using Exchanger.API.Services.IServices;
-using Exchanger.API.Repositories.IRepositories;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using Exchanger.API.Entities;
+using Exchanger.API.Enums.TokenGenerationErrors;
+using Exchanger.API.Repositories.IRepositories;
+using Exchanger.API.Services.IServices;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Exchanger.API.Services
 {
@@ -148,6 +150,67 @@ namespace Exchanger.API.Services
                     IpAdress = s.IpAdress,
                     DeviceType = s.DeviceType,
                 }).ToList();
+        }
+
+        public async Task<TokenResult> GenerateEmailConfirmationTokenAsync(Guid userId)
+        {
+            var token = GenerateEmailConfirmationJWT(userId);
+            return TokenResult.Success(token);
+        }
+
+        public string GenerateEmailConfirmationJWT(Guid userId)
+        {
+            var claimsJwt = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenOptions = new JwtSecurityToken(
+                _jwtSettings.Issuer,
+                _jwtSettings.Audience,
+                claimsJwt,
+                expires: DateTime.UtcNow.AddDays(_jwtSettings.EmailJWTValidityInDays),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
+
+        public async Task<TokenResult> ValidateEmailConfirmationTokenAsync(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var principal = tokenHandler.ValidateToken(
+                token, 
+                validationParameters, 
+                out SecurityToken validatedToken);
+
+            var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub);
+
+            if (userIdClaim == null)
+            {
+                return TokenResult.Fail(TokenErrorCode.MissingUserId);
+            }
+
+            if (!Guid.TryParse(userIdClaim.Value, out var userId))
+            {
+                return TokenResult.Fail(TokenErrorCode.MissingUserId);
+            }
+
+            return TokenResult.Success(userId);
         }
     }
 }

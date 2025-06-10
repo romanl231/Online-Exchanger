@@ -16,6 +16,8 @@ using Exchanger.API.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Exchanger.API.Enums.UploadToCloudErrors;
 using CloudinaryDotNet.Actions;
+using FluentAssertions;
+using Exchanger.API.Enums.TokenGenerationErrors;
 
 namespace Exchanger.Tests.UserTest
 {
@@ -68,6 +70,8 @@ namespace Exchanger.Tests.UserTest
             await context.SaveChangesAsync();
             var users = context.Users.ToList();
             var mockRepo = new Mock<IUserRepository>();
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
 
             mockRepo.Setup(r => r.AddAsync(It.IsAny<User>()))
                 .ReturnsAsync((User user) =>
@@ -84,7 +88,7 @@ namespace Exchanger.Tests.UserTest
                 });
 
             var mockCloudServ = new Mock<ICloudinaryService>();
-            var userService = new UserService(mockRepo.Object, mockCloudServ.Object);
+            var userService = new UserService(mockRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
 
             var authDto = new AuthDTO
             {
@@ -117,7 +121,9 @@ namespace Exchanger.Tests.UserTest
                     return true;
                 });
             var mockCloudServ = new Mock<ICloudinaryService>();
-            var userService = new UserService(mockRepo.Object, mockCloudServ.Object);
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
+            var userService = new UserService(mockRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
             var authDto = new AuthDTO
             {
                 Email = "pososachka@example.com",
@@ -195,7 +201,9 @@ namespace Exchanger.Tests.UserTest
 
             var user = users.First(u => u.Id != Guid.Empty);
             var mockCloudServ = new Mock<ICloudinaryService>();
-            var userService = new UserService(mockRepo.Object, mockCloudServ.Object);
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
+            var userService = new UserService(mockRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
 
             var userInfo = await userService.GetUserInfoAsync(user.Id);
 
@@ -268,7 +276,9 @@ namespace Exchanger.Tests.UserTest
                 Surname = "MarshallMathew"
             };
             var mockCloudServ = new Mock<ICloudinaryService>();
-            var userService = new UserService(mockRepo.Object, mockCloudServ.Object);
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
+            var userService = new UserService(mockRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
             var result = await userService.UpdateUserInfoAsync(updateUserDTO, userId);
 
             Assert.True(result.IsSuccess);
@@ -329,6 +339,8 @@ namespace Exchanger.Tests.UserTest
                 });
 
             var mockCloudServ = new Mock<ICloudinaryService>();
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
 
             mockCloudServ.Setup(s => s.UploadAvatarToCloudAsync(It.IsAny<IFormFile>(), It.IsAny<Guid>()))
                 .ReturnsAsync((IFormFile image, Guid userId) =>
@@ -336,7 +348,7 @@ namespace Exchanger.Tests.UserTest
                     return CloudResult.Success(GetFakeUploadResult());
                 });
 
-            var userService = new UserService(mockUserRepo.Object, mockCloudServ.Object);
+            var userService = new UserService(mockUserRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
             var image = FormFileFactory.CreateFakeFormFile();
             var userId = users.First(u => u.Id != Guid.Empty).Id;
             var result = await userService.UploadAvatarAsync(image, userId);
@@ -362,6 +374,159 @@ namespace Exchanger.Tests.UserTest
                 OriginalFilename = "test_image",
                 Bytes = 102400,
             };
+        }
+
+        [Fact]
+        public async Task CheckIfUserEmailConfirms()
+        {
+            using var context = CreateContext();
+
+            context.Users.AddRange(new List<User>
+            {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "examplemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "anotherexampleemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User {
+                Id = Guid.NewGuid(),
+                Email = "imtiredofparcingdata@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            }
+            });
+
+            await context.SaveChangesAsync();
+            var users = context.Users.ToList();
+            var mockUserRepo = new Mock<IUserRepository>();
+            var mockCloudinaryServ = new Mock<ICloudinaryService>();
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
+            var user = users.First();
+
+
+            mockUserRepo.Setup(ur => ur.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync((User user) =>
+                {
+                    user.IsEmailVerified = true;
+                    return true;
+                });
+
+            mockUserRepo.Setup(ur => ur.UpdateAsync(It.IsAny<User>()))
+               .ReturnsAsync((User user) =>
+               {
+
+                   return true;
+               });
+
+            mockUserRepo.Setup(ur => ur.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    return users.FirstOrDefault(u => u.Id == userId);
+                });
+
+            mockTokenService.Setup(ts => ts.ValidateEmailConfirmationTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync((string token) =>
+                {
+                    return TokenResult.Success(user.Id);
+                });
+
+            var userService = new UserService(mockUserRepo.Object, mockCloudinaryServ.Object, mockTokenService.Object, mockEmailSender.Object);
+            
+
+            var result = await userService.ConfirmUserEmailAsync("anyValidToken");
+
+            result.IsSuccess.Should().BeTrue();
+            user.IsEmailVerified.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task CheckIfEmailSended()
+        {
+            using var context = CreateContext();
+
+            context.Users.AddRange(new List<User>
+            {
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "examplemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "anotherexampleemail@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            },
+            new User {
+                Id = Guid.NewGuid(),
+                Email = "imtiredofparcingdata@example.com",
+                PasswordHash = "itsMyPasswordHash",
+                Name = "MyNameIs",
+                Surname = "MyLastname",
+                AvatarUrl = "MyAvatar",
+            }
+            });
+
+            await context.SaveChangesAsync();
+            var users = context.Users.ToList();
+            var mockUserRepo = new Mock<IUserRepository>();
+            var mockEmailSender = new Mock<IEmailSenderService>();
+            var mockTokenService = new Mock<ITokenService>();
+            var mockCloudServ = new Mock<ICloudinaryService>();
+            mockUserRepo.Setup(ur => ur.UpdateAsync(It.IsAny<User>()))
+                .ReturnsAsync((User user) =>
+                {
+                   
+                    return true;
+                });
+
+            mockUserRepo.Setup(ur => ur.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    return users.FirstOrDefault(u => u.Id == userId);
+                });
+
+            mockEmailSender.Setup(es => es.SendVerificationEmailAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((string email, string token) =>
+                {
+                    return EmailSenderResult.Success();
+                });
+
+            mockTokenService.Setup(ts => ts.GenerateEmailConfirmationTokenAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid userId) =>
+                {
+                    return TokenResult.Success("successfullyCreated");
+                });
+
+            var userService = new UserService(mockUserRepo.Object, mockCloudServ.Object, mockTokenService.Object, mockEmailSender.Object);
+
+            var user = users.First();
+            var result = await userService.InitiateEmailConfirmationAsync(user.Id);
+            result.IsSuccess.Should().BeTrue();
+            user.EmailVerificationCode.Should().Be("successfullyCreated");
         }
     }
 }
