@@ -14,9 +14,9 @@ namespace Exchanger.API.DTOs.AuthDTOs
         public DateTime ExpiresAt { get; set; }
 
         [Required]
-        public string DeviceType { get; set; }
+        public string DeviceType { get; set; } = string.Empty;
 
         [Required]
-        public string IpAdress { get; set; }
+        public string IpAdress { get; set; } = string.Empty;
     }
 }

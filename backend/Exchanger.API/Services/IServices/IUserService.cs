@@ -13,5 +13,7 @@ namespace Exchanger.API.Services.IServices
         Task<AuthResult> UpdateUserInfoAsync(UpdateProfileDTO updateProfileDTO, Guid userId); 
         Task<AuthResult> CheckDoesPasswordsMatches(AuthDTO authDTO);
         Task<CloudResult> UploadAvatarAsync(IFormFile image, Guid userId);
+        Task<AuthResult> InitiateEmailConfirmationAsync(Guid userId);
+        Task<AuthResult> ConfirmUserEmailAsync(string token);
     }
 }

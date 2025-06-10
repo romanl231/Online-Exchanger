@@ -7,9 +7,9 @@ namespace Exchanger.API.DTOs.ListingDTOs
     {
         public decimal MaxValue { get; set; } = 999999999m;
         public decimal MinValue { get; set; } = 0m;
-        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<int> CategoryIds { get; set; } = new List<int>();
 
         [Required]
-        public PaginationDTO Pagination { get; set; }
+        public PaginationDTO Pagination { get; set; } = new PaginationDTO();
     }
 }

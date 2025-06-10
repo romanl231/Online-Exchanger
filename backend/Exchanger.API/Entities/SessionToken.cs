@@ -9,7 +9,7 @@ namespace Exchanger.API.Entities
 
         [Required]
         public Guid UserId { get; set; }
-        public User User { get; set; }
+        public User User { get; set; } = new User();
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -18,10 +18,10 @@ namespace Exchanger.API.Entities
         public DateTime ExpiresAt { get; set; }
 
         [Required]
-        public string DeviceType {  get; set; }
+        public string DeviceType {  get; set; } = string.Empty;
 
         [Required]
-        public string IpAdress {  get; set; }
+        public string IpAdress {  get; set; } = string.Empty;
 
         [Required]
         public bool IsRevoked { get; set; }

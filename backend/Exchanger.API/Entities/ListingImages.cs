@@ -10,9 +10,9 @@ namespace Exchanger.API.Entities
         [Required]
         public Guid ListingId { get; set; }
         [Required]
-        public Listing Listing { get; set; }
+        public Listing Listing { get; set; } = new Listing();
 
         [Required]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
     }
 }

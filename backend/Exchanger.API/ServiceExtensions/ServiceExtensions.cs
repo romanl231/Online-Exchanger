@@ -1,16 +1,18 @@
-﻿using Exchanger.API.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Exchanger.API.Repositories.IRepositories;
-using Exchanger.API.Repositories;
-using Exchanger.API.Services.IServices;
-using Exchanger.API.Services;
+﻿using CloudinaryDotNet;
+using Exchanger.API.Data;
+using Exchanger.API.DTOs;
 using Exchanger.API.DTOs.AuthDTOs;
 using Exchanger.API.DTOs.Cloudinary;
-using CloudinaryDotNet;
+using Exchanger.API.DTOs.EmailSenderDTOs;
+using Exchanger.API.Repositories;
+using Exchanger.API.Repositories.IRepositories;
+using Exchanger.API.Services;
+using Exchanger.API.Services.IServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Exchanger.API.ServiceExtensions
 {
@@ -32,11 +34,20 @@ namespace Exchanger.API.ServiceExtensions
             services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             services.AddSingleton<ICloudinaryClient, CloudinaryClient>();
+            services.AddSingleton<IEmailSenderService, EmailSenderService>();
 
             services.Configure<JWTSettings>(
                 configuration.GetSection("Jwt"));
             services.AddSingleton<JWTSettings>(provider =>
                 provider.GetRequiredService<IOptions<JWTSettings>>().Value);
+
+            services.Configure<AppSettings>(
+                configuration.GetSection("AppSettings"));
+
+            services.Configure<SmtpSettings>(
+                configuration.GetSection("Smtp"));
+            services.AddSingleton<SmtpSettings>(provider => 
+                provider.GetRequiredService<IOptions<SmtpSettings>>().Value);
 
             services.Configure<CloudinarySettings>(
                 configuration.GetSection("Cloudinary"));

@@ -1,4 +1,5 @@
 ﻿using Exchanger.API.DTOs.AuthDTOs;
+using Exchanger.API.Enums.TokenGenerationErrors;
 
 namespace Exchanger.API.Services.IServices
 {
@@ -8,5 +9,7 @@ namespace Exchanger.API.Services.IServices
         Task<OnCreationSessionDTO>? RefreshSessionAsync(Guid refreshToken, SessionInfo sessionInfo);
         Task<bool> RevokeSessionAsync(Guid refreshToken);
         Task<List<DisplaySessionInfoDTO>> GetSessionsByUserIdAsync(Guid userId);
+        Task<TokenResult> GenerateEmailConfirmationTokenAsync(Guid userId);
+        Task<TokenResult> ValidateEmailConfirmationTokenAsync(string token);
     }
 }

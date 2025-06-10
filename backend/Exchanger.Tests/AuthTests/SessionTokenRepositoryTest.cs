@@ -25,15 +25,19 @@ public class SessionTokenRepositoryTest
         var userId = Guid.NewGuid();
 
         using var context = CreateContext();
+
+        var user = new User { Id = userId, Email = "TestUser" };
+        context.Users.Add(user);
+
         context.SessionTokens.AddRange(new List<SessionToken>
         {
-            new SessionToken { Id = Guid.NewGuid(), UserId = userId, CreatedAt = 
+            new SessionToken { Id = Guid.NewGuid(), UserId = userId, User = user, CreatedAt = 
             DateTime.UtcNow, ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = 
             "Comp", IpAdress = "myAdress", IsRevoked = false },
-            new SessionToken { Id = Guid.NewGuid(), UserId = userId, CreatedAt = DateTime.UtcNow, 
+            new SessionToken { Id = Guid.NewGuid(), UserId = userId, User = user, CreatedAt = DateTime.UtcNow, 
                 ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = "Comp", IpAdress = "myAdress", 
                 IsRevoked = true },
-            new SessionToken { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, 
+            new SessionToken { Id = Guid.NewGuid(), UserId = userId, User = user,CreatedAt = DateTime.UtcNow, 
                 ExpiresAt = DateTime.UtcNow.AddDays(14), DeviceType = "Comp", IpAdress = "myAdress",
                 IsRevoked = false }
         });
@@ -43,7 +47,7 @@ public class SessionTokenRepositoryTest
         var repository = new SessionTokenRepository(context);
 
         var result = await repository.GetUnexpiredTokensByUserIdAsync(userId);
-        Assert.Single(result);
+        Assert.Equal(2, result.Count);
         Assert.All(result, token =>
         {
             Assert.Equal(userId, token.UserId);

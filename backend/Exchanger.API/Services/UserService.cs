@@ -5,6 +5,7 @@ using Exchanger.API.Repositories.IRepositories;
 using Exchanger.API.Services.IServices;
 using BCrypt.Net;
 using Exchanger.API.Enums.UploadToCloudErrors;
+using CloudinaryDotNet.Actions;
 
 namespace Exchanger.API.Services
 {
@@ -12,11 +13,19 @@ namespace Exchanger.API.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly ITokenService _tokenService;
+        private readonly IEmailSenderService _emailSenderService;
 
-        public UserService(IUserRepository userRepository, ICloudinaryService cloudinaryService) 
+        public UserService(
+            IUserRepository userRepository, 
+            ICloudinaryService cloudinaryService,
+            ITokenService tokenService,
+            IEmailSenderService emailSenderService) 
         {
             _userRepository = userRepository;
             _cloudinaryService = cloudinaryService;
+            _tokenService = tokenService;
+            _emailSenderService = emailSenderService;
         }
 
         public async Task<bool> CheckUserExistanceByEmailAsync(string email)
@@ -163,6 +172,55 @@ namespace Exchanger.API.Services
         {
             userEntity.Name = userDTO.Name;
             userEntity.Surname = userDTO.Surname;
+        }
+
+        public async Task<AuthResult> InitiateEmailConfirmationAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+                throw new ArgumentNullException("Wrong user ID");
+
+            var tokenResult = await _tokenService.GenerateEmailConfirmationTokenAsync(userId);
+
+            if (!tokenResult.IsSuccess || string.IsNullOrEmpty(tokenResult.Token))
+                throw new InvalidOperationException(tokenResult.ErrorCode.ToString());
+            
+
+            var emailSenderResult = await _emailSenderService.SendVerificationEmailAsync(user.Email, tokenResult.Token);
+
+            if (!emailSenderResult.IsSuccess)
+                throw new InvalidOperationException(emailSenderResult.ErrorCode.ToString());
+
+            user.EmailVerificationCode = tokenResult.Token;
+            var userResult = await _userRepository.UpdateAsync(user);
+
+            if (!userResult)
+                throw new InvalidOperationException("An unkown error occured while updating of user entity");
+
+            return AuthResult.Success();
+        }
+
+        public async Task<AuthResult> ConfirmUserEmailAsync(string token)
+        {
+            var validationResult = await _tokenService
+                .ValidateEmailConfirmationTokenAsync(token);
+
+            if (!validationResult.IsSuccess || validationResult.UserId == Guid.Empty)
+                return AuthResult.Fail(AuthErrorCode.TokenExpired);
+
+            var user = await _userRepository.GetByIdAsync(validationResult.UserId.Value);
+            
+            if (user == null)
+                return AuthResult.Fail(AuthErrorCode.UserNotFound);
+
+            user.IsEmailVerified = true;
+            var result = await _userRepository.UpdateAsync(user);
+
+            if (!result)
+                return AuthResult.Fail(AuthErrorCode.UserNotFound);
+
+            return AuthResult.Success();
         }
     }
 }
