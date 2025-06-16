@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import { ToastContainer } from 'react-toastify';
+import HomePage from "./pages/Homepage";
+import Layout from "./pages/Layout";
 
 const App = () => {
   useAxiosInterceptor();
@@ -27,14 +29,15 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="register" element={<Register/>} />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Dashboard/>
-              </PrivateRoute>
-            }
-          />
+
+          <Route element={<Layout />} >
+          <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={
+              <PrivateRoute> 
+                <Dashboard /> 
+              </PrivateRoute>} 
+              />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>
