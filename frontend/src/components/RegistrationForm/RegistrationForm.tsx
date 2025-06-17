@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useFormik } from "formik";
 import { registerValidationSchema } from "../../utils/validationSchema.ts";
 import EmailInputField from "../LoginForm/EmailInputField";

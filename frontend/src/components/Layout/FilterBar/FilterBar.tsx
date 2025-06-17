@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { FromInputField } from "./FromInputField";
 import { ToInputField } from "./ToInputField";
 import { CategorySelect } from "./CategorySelect";
 
-export const FilterBar: React.FC = () => {
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+interface FilterBarProps {
+  minPrice: string;
+  setMinPrice: (value: string) => void;
+  maxPrice: string;
+  setMaxPrice: (value: string) => void;
+  selectedCategories: string[];
+  setSelectedCategoryIds: (ids: string[]) => void;
+}
 
+export const FilterBar: React.FC<FilterBarProps> = ({
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  selectedCategories,
+  setSelectedCategoryIds,
+}) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
   };
@@ -27,15 +39,8 @@ export const FilterBar: React.FC = () => {
             onChange={setMaxPrice}/>
           <CategorySelect 
             selectedCategories={selectedCategories}
-            onChange={setSelectedCategories}
+            onChange={setSelectedCategoryIds}
           />
-
-          <button
-            type="submit"
-            className="bg-purple-400 text-white px-3 py-1 rounded hover:bg-purple-400"
-          >
-            Apply Filters
-          </button>
         </form>
     </div>
   );
