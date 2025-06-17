@@ -10,10 +10,10 @@ export const ListItemButton: React.FC<ListItemButtonProps> = ({
   onClick
 }) => {
   return (
-    <button
-      className="self-stretch px-12 py-4 bg-purple-400 rounded-[100px] max-md:px-5"
-      onClick={onClick}
-    >
+      <button
+        onClick={onClick}
+        className="px-6 py-3 bg-purple-400 rounded-full text-white font-semibold hover:bg-purple-500 transition-colors max-md:px-5"
+      >
       {text}
     </button>
   );

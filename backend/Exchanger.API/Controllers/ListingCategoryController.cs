@@ -42,7 +42,7 @@ namespace Exchanger.API.Controllers
                return HandleListingResult(result);
            }, "deletion of category");
 
-        [HttpGet("categories/all")]
+        [HttpGet("all")]
         public Task<IActionResult> GetAllCategories() =>
             SafeExecuteAsync(async () =>
             {

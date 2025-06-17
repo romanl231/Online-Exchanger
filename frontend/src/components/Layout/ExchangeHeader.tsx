@@ -5,11 +5,15 @@ import { ListItemButton } from "./ListItemButtons";
 import Logo from "../Logo.tsx";
 
 export const ExchangeHeader: React.FC = () => {
+  
+
   return (
-    <header className="w-full px-8 py-4 flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-4">
+    <header className="w-full max-w-7xl flex justify-between items-center gap-6">
       <Logo />
-      <nav className="flex gap-6 items-center text-sm text-gray-200 max-md:w-full max-md:justify-between">
-        <SearchBar />
+      <nav className="flex items-center gap-6 flex-grow">
+        <div className="flex-grow max-w-[600px]">
+          <SearchBar />
+        </div>
         <ProfileLink />
         <ListItemButton />
       </nav>
