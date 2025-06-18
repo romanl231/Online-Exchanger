@@ -31,6 +31,8 @@ namespace Exchanger.API.ServiceExtensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IListingService, ListingService>();
+            services.AddScoped<IListingCategoryService, ListingCategoryService>();
+            services.AddScoped<IListingImageService, ListingImageService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             services.AddSingleton<ICloudinaryClient, CloudinaryClient>();

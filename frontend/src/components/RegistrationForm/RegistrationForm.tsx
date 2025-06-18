@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useFormik } from "formik";
 import { registerValidationSchema } from "../../utils/validationSchema.ts";
 import EmailInputField from "../LoginForm/EmailInputField";
@@ -7,7 +7,7 @@ import Divider from "../LoginForm/Divider";
 import GoogleSignIn from "../LoginForm/GoogleSignIn";
 import SignUpButton from "./SignUpButton";
 import { Link } from "react-router-dom";
-import Logo from "../LoginForm/Logo";
+import Logo from "../Logo.tsx";
 
 const RegistrationForm: React.FC = () => {
     const formik = useFormik({

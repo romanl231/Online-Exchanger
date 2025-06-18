@@ -7,7 +7,7 @@ import PasswordInput from "./PasswordInput";
 import Divider from "./Divider";
 import GoogleSignIn from "./GoogleSignIn";
 import SignInButton from "./SignInButton";
-import Logo from "./Logo";
+import Logo from "../Logo.tsx";
 
 const LoginForm: React.FC = () => {
   const formik = useFormik({
