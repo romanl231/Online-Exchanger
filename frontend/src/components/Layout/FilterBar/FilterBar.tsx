@@ -8,7 +8,7 @@ interface FilterBarProps {
   setMinPrice: (value: string) => void;
   maxPrice: string;
   setMaxPrice: (value: string) => void;
-  selectedCategories: string[];
+  selectedCategoryIds: string[];
   setSelectedCategoryIds: (ids: string[]) => void;
 }
 
@@ -17,7 +17,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   setMinPrice,
   maxPrice,
   setMaxPrice,
-  selectedCategories,
+  selectedCategoryIds,
   setSelectedCategoryIds,
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             maxPrice={maxPrice} 
             onChange={setMaxPrice}/>
           <CategorySelect 
-            selectedCategories={selectedCategories}
+            selectedCategoryIds={selectedCategoryIds}
             onChange={setSelectedCategoryIds}
           />
         </form>

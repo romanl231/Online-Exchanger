@@ -1,37 +1,46 @@
 import { useCategories } from "../../../hooks/useCategories";
 
 interface CategorySelectProps {
-    selectedCategories: string[];
-    onChange: (selected: string[]) => void;
+  selectedCategoryIds: string[];
+  onChange: (selected: string[]) => void;
 }
 
 export const CategorySelect: React.FC<CategorySelectProps> = ({
-    selectedCategories,
-    onChange,
+  selectedCategoryIds,
+  onChange,
 }) => {
+  const { categories, loading, error } = useCategories();
 
-    const {categories, loading, error} = useCategories();
+  if (loading) return <p>Loading categories...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
-     if (loading) return <p>Loading categories...</p>;
-     if (error) return <p className="text-red-500">{error}</p>;
+  const handleCheckboxChange = (categoryId: string) => {
+    if (selectedCategoryIds.includes(categoryId)) {
+      onChange(selectedCategoryIds.filter((c) => c !== categoryId));
+    } else {
+      onChange([...selectedCategoryIds, categoryId]);
+    }
+  };
 
-     return (
+  return (
     <div className="mb-3">
-      <label className="block text-sm font-medium text-[#EAEAEA] mb-1">Categories</label>
-       <select
-        multiple
-        value={selectedCategories}
-        onChange={(e) =>
-          onChange(Array.from(e.target.selectedOptions, (opt) => opt.value))
-        }
-        className="mt-1 block w-full border border-gray-300 rounded px-2 py-1 h-32"
-      >
+      <label className="block text-sm font-medium text-[#EAEAEA] mb-1">
+        Categories
+      </label>
+      <div className="flex flex-col gap-2">
         {categories.map((category) => (
-          <option key={category.id} value={category.name}>
+          <label key={category.id} className="flex items-center gap-2 text-[#EAEAEA]">
+            <input
+              type="checkbox"
+              value={category.id}
+              checked={selectedCategoryIds.includes(category.id)}
+              onChange={() => handleCheckboxChange(category.id)}
+              className="accent-purple-500"
+            />
             {category.name}
-          </option>
+          </label>
         ))}
-      </select>
+      </div>
     </div>
   );
-}
+};

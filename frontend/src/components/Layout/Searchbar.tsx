@@ -50,7 +50,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     setMinPrice={setMinPrice}
                     maxPrice={maxPrice} 
                     setMaxPrice={setMaxPrice}
-                    selectedCategories={selectedCategoryIds}
+                    selectedCategoryIds={selectedCategoryIds}
                     setSelectedCategoryIds={setSelectedCategoryIds}/>}
         </form>
   );
