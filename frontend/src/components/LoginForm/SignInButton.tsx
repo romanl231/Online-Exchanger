@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getClientIp, getDeviceFingerprint } from "../../utils/getClientInfo";
+import type { User } from "../../types/User";
 
 const SignInButton = ({ email, password, disabled } : 
   { email: string; password: string; disabled: boolean}) => {
@@ -12,11 +13,11 @@ const SignInButton = ({ email, password, disabled } :
 
   const handleSubmit = async () => {
     try {
-        const ipAdress = await getClientIp();
+        const ipAddress = await getClientIp();
         const deviceType = getDeviceFingerprint();
-        await AuthService.login({ email, password, ipAdress, deviceType});
+        await AuthService.login({ email, password, ipAddress, deviceType});
         const me = await AuthService.me();
-        setUser(me.data);
+        setUser(me.data as User);
         navigate("/");
         toast.success("Login successed", {
           position: "top-center",

@@ -1,21 +1,52 @@
-import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getClientIp, getDeviceFingerprint } from "../utils/getClientInfo";
+import { AuthService } from "../api/authApi";
+import type { User } from "../types/User";
 
 interface PrivateRouteProps {
-  children: ReactNode; // Заміна JSX.Element на ReactNode для більшої гнучкості
+children: React.ReactNode;
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { user } = useAuth();
-  const location = useLocation(); // Отримуємо поточний шлях
+const { user, setUser, authChecked } = useAuth();
+const location = useLocation();
+const [refreshing, setRefreshing] = useState(false);
 
-  if (!user) {
-    // Зберігаємо шлях, на який користувач намагався перейти
-    return <Navigate to="/login" state={{ from: location }} />;
-  }
+useEffect(() => {
+  const tryRefresh = async () => {
+    if (!authChecked || user !== null) { 
+      console.log("PrivateRoute:", { authChecked, user });
+      return;
+    }
 
-  return <>{children}</>;
+    setRefreshing(true);
+    try {
+      const ipAddress = await getClientIp();
+      const deviceType = getDeviceFingerprint();
+      await AuthService.refresh({ ipAddress, deviceType });
+      console.log("Entered try catch");
+      const meRes = await AuthService.me();
+      setUser(meRes.data as User);
+    } catch (err) {
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  tryRefresh();
+}, [authChecked, user, setUser]);
+
+if (!authChecked || refreshing) {
+  return <div className="text-white text-center py-10">Checking access...</div>;
+}
+
+if (user === null) {
+  return <Navigate to="/login" state={{ from: location }} replace />;
+}
+
+return <>{children}</>;
 };
 
 export default PrivateRoute;
