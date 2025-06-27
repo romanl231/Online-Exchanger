@@ -9,7 +9,9 @@ import { useState } from "react";
 export default function ListingForm() {
   const [images, setImages] = useState<File[]>([]);
   const [title, setTitle] = useState<string>("");
-  const isActive = images.length > 1;
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [price, setPrice] = useState<number>(1);
+  const [description, setDescription] = useState<string>("");
 
   return (
     <div className="flex justify-center items-start w-full px-4 py-10">
@@ -23,15 +25,20 @@ export default function ListingForm() {
             title={title}
             setTitle={setTitle} 
             titleText="Create title"/>
-          <CategoriesSection 
+          <CategoriesSection
+            selectedCategoryIds={selectedCategoryIds}
+            setSelectedCategoryIds={setSelectedCategoryIds} 
             titleText="Choose categories"/>
-          <PriceSection 
+          <PriceSection
+            price={price}
+            setPrice={setPrice} 
             titleText="Select price"/>
-          <DescriptionSection 
+          <DescriptionSection
+            description={description}
+            setDescription={setDescription} 
             titleText="Description"/>
           <div className="flex justify-end">
-            <PublishButton 
-            isActive={isActive}/>
+            <PublishButton />
           </div>
         </div>
       </main>
