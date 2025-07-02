@@ -16,8 +16,7 @@ const LoginForm: React.FC = () => {
       password: "",
     },
     validationSchema: loginValidationSchema,
-    onSubmit: (values) => {
-      console.log("Logging in with:", values);
+    onSubmit: () => {
     },
   });
 

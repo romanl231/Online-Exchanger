@@ -5,7 +5,7 @@ import { useRef } from "react";
 interface ImageUploadSectionProps {
   titleText: string;
   images: File[];
-  setImages: React.Dispatch<React.SetStateAction<File[]>>; 
+  setImages: (files: File[]) => void; 
 }
 
 export function ImageUploadSection({ titleText, images, setImages}: ImageUploadSectionProps) {
@@ -21,7 +21,8 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
   const lastRow = images.slice(fullRows * 4);
 
   const handleRemoveImage = (filenameToRemove: string) => {
-    setImages(prev => prev.filter(file => file.name !== filenameToRemove));
+    const updated = images.filter(file => file.name !== filenameToRemove);
+    setImages(updated);
   };
 
   const handleAddImages = () => {
@@ -30,9 +31,11 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
 
   const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+
     if (files) {
       const newFiles = Array.from(files);
-      setImages(prev => [...prev, ...newFiles]);
+      const updated = [...images, ...newFiles];
+      setImages(updated);
       e.target.value = "";
     }
   };

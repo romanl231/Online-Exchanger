@@ -16,6 +16,7 @@ export function ImageThumbnail({ file, onRemove }: ImageThumbnailProps) {
         />
         <button 
           className="absolute top-0 right-0 z-10 bg-transparent p-0 m-0 border-none inline-flex items-center justify-center"
+          type="button"
           onClick={() => onRemove(file.name)}>
           <Xsvg />
         </button>
