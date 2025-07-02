@@ -1,10 +1,4 @@
-import axios from "axios";
-import { API_BASE_URL } from "../constants.ts";
-
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-});
+import { api } from "./api.ts";
 
 export const AuthService = {
   login: (data: { email: string; password: string, ipAddress:string, deviceType:string }) => api.post("/auth/login", {

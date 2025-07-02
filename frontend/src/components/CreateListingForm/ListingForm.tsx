@@ -15,7 +15,7 @@ export default function ListingForm() {
 
   return (
     <div className="flex justify-center items-start w-full px-4 py-10">
-      <main className="w-full bg-neutral-800 rounded-2xl p-8 shadow-lg">
+      <form className="w-full bg-neutral-800 rounded-2xl p-8 shadow-lg">
         <div className="flex-col gap-6">
           <ImageUploadSection
             images={images}
@@ -37,11 +37,11 @@ export default function ListingForm() {
             description={description}
             setDescription={setDescription} 
             titleText="Description"/>
-          <div className="flex justify-end">
+          <div className="py-10 flex justify-center">
             <PublishButton />
           </div>
         </div>
-      </main>
+      </form>
     </div>
   );
 }

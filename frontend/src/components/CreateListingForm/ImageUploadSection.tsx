@@ -50,7 +50,7 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
         onChange={handleFilesSelected}
       />
 
-      <div className="rounded-3xl border border-neutral-700 bg-zinc-800 p-6 max-md:px-4">
+      <div className={images.length === 0 ? `display:none` : `rounded-3xl border border-neutral-700 bg-zinc-800 p-6 max-md:px-4` }>
         {fullRowsChunks.map((chunk, rowIdx) => (
           <div key={rowIdx} className="grid grid-cols-4 gap-4 max-md:grid-cols-2 mb-4">
             {chunk.map((image, i) => (
@@ -74,13 +74,12 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
           ))}
         </div>
       )}
-
-        <div className="mt-6 flex justify-center">
+      </div>
+      <div className="mt-6 flex justify-center">
           <AddImageButton 
             isActive={isActive}
             handleClick={handleAddImages}/>
         </div>
-      </div>
     </section>
   );
 }
