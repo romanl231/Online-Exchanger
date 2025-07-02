@@ -19,7 +19,7 @@ const SignInButton = ({ email, password, disabled } :
         const me = await AuthService.me();
         setUser(me.data as User);
         navigate("/");
-        toast.success("Login successed", {
+        toast.success("Login succeed", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
