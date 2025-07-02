@@ -2,9 +2,10 @@ interface PriceSectionProps {
   titleText: string;
   price: number;
   setPrice: (price: number) => void;
+  error?: string | false;
 }
 
-export function PriceSection({ titleText, price, setPrice }: PriceSectionProps) {
+export function PriceSection({ titleText, price, setPrice, error }: PriceSectionProps) {
   const min = 1;
   const max = 100000;
 
@@ -48,6 +49,7 @@ export function PriceSection({ titleText, price, setPrice }: PriceSectionProps) 
           <span>{min}$</span>
           <span>{max.toLocaleString()} $</span>
         </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
       </div>
     </section>
   );

@@ -5,7 +5,7 @@ import { CategoryService } from "../api/categoriesApi";
 export const useCategories = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [categoryError, setError] = useState<string | null>(null);
 
     useEffect(() => {
         CategoryService.getAll()
@@ -14,5 +14,5 @@ export const useCategories = () => {
         .finally(() => setLoading(false));
     }, []);
 
-    return {categories, loading, error}
+    return {categories, loading, categoryError}
 }

@@ -1,3 +1,4 @@
+import type { FormikErrors } from "formik";
 import { AddImageButton } from "./AddImageButton";
 import { ImageThumbnail } from "./ImageThumbnail";
 import { useRef } from "react";
@@ -5,10 +6,11 @@ import { useRef } from "react";
 interface ImageUploadSectionProps {
   titleText: string;
   images: File[];
-  setImages: (files: File[]) => void; 
+  setImages: (files: File[]) => void;
+  error?: string | FormikErrors<File[]>; 
 }
 
-export function ImageUploadSection({ titleText, images, setImages}: ImageUploadSectionProps) {
+export function ImageUploadSection({ titleText, images, setImages, error}: ImageUploadSectionProps) {
   const isActive = images.length > 20;
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -53,7 +55,8 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
         onChange={handleFilesSelected}
       />
 
-      <div className={images.length === 0 ? `display:none` : `rounded-3xl border border-neutral-700 bg-zinc-800 p-6 max-md:px-4` }>
+      <div className={`rounded-3xl border 
+        ${error ? "border-red-500" : "border-neutral-700"} bg-zinc-800 p-6 max-md:px-4` }>
         {fullRowsChunks.map((chunk, rowIdx) => (
           <div key={rowIdx} className="grid grid-cols-4 gap-4 max-md:grid-cols-2 mb-4">
             {chunk.map((image, i) => (
@@ -78,6 +81,13 @@ export function ImageUploadSection({ titleText, images, setImages}: ImageUploadS
         </div>
       )}
       </div>
+      {typeof error === 'string' && <p className="text-red-500 text-sm">{error}</p>}
+      {Array.isArray(error) &&
+      error.map((err, index) =>
+        typeof err === 'string' ? (
+          <p key={index} className="text-red-500 text-sm">{err}</p>
+        ) : null
+  )}
       <div className="mt-6 flex justify-center">
           <AddImageButton 
             isActive={isActive}

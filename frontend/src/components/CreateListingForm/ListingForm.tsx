@@ -15,7 +15,7 @@ export default function ListingForm() {
   const formik = useFormik({
     initialValues: {
       title: '',
-      price: 0,
+      price: 1,
       description: '',
       categoryIds: [],
       images: [] as File[],
@@ -25,7 +25,7 @@ export default function ListingForm() {
       console.log("SUBMIT VALUES:", values);
       try {
           await ListingService.create(values);
-          toast.success("Listing successfuly created", {
+          toast.success("Listing successfully created", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -57,25 +57,36 @@ export default function ListingForm() {
           <ImageUploadSection
             images={formik.values.images}
             setImages={(file: File[]) => formik.setFieldValue("images", file)} 
-            titleText="Upload images"/>
+            titleText="Upload images"
+            error={formik.touched.images && formik.errors.images}/>
           <TitleSection
             title={formik.values.title}
             setTitle={(val) => formik.setFieldValue("title", val)} 
-            titleText="Create title"/>
+            titleText="Create title"
+            error={formik.touched.title && formik.errors.title}/>
           <CategoriesSection
             selectedCategoryIds={formik.values.categoryIds}
             setSelectedCategoryIds={(val) => formik.setFieldValue("categoryIds", val)} 
-            titleText="Choose categories"/>
+            titleText="Choose categories"
+            error={formik.touched.categoryIds && 
+              (typeof formik.errors.categoryIds === 'string'
+                ? formik.errors.categoryIds
+                : Array.isArray(formik.errors.categoryIds)
+                  ? formik.errors.categoryIds[0]
+                  : undefined)}/>
           <PriceSection
             price={formik.values.price}
             setPrice={(val) => formik.setFieldValue("price", val)} 
-            titleText="Select price"/>
+            titleText="Select price"
+            error={formik.touched.price && formik.errors.price}/>
           <DescriptionSection
             description={formik.values.description}
             setDescription={(val) => formik.setFieldValue("description", val)} 
-            titleText="Description"/>
+            titleText="Description"
+            error={formik.touched.description && formik.errors.description}/>
           <div className="py-10 flex justify-center">
-            <PublishButton />
+            <PublishButton 
+              disabled={!(formik.isValid && formik.dirty)}/>
           </div>
         </div>
       </form>
