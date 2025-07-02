@@ -1,15 +1,15 @@
+interface PublishButtonProps {
+  disabled: boolean;
+}
 
-export function PublishButton() {
+export function PublishButton({disabled}: PublishButtonProps) {
   return (
     <button
-      className="self-center 
-        px-16 py-4 mt-32
-        max-w-full text-sm text-gray-200 
-        whitespace-nowrap 
-        rounded-[100px] w-[175px] max-md:px-5 
-        max-md:mt-10 transition-colors 
-      "
-    >
+      type="submit"
+      className= {`px-6 py-3 text-sm text-white 
+                bg-purple-500 ${disabled ? "opacity-50 cursor-not-allowed" : ""} 
+                rounded-full hover:bg-purple-600 transition 
+                bg-purple-400 hover:bg-purple-500`}>
       Publish
     </button>
   );

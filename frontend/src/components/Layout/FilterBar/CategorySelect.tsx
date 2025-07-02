@@ -9,10 +9,10 @@ export const CategorySelect: React.FC<CategorySelectProps> = ({
   selectedCategoryIds,
   onChange,
 }) => {
-  const { categories, loading, error } = useCategories();
+  const { categories, loading, categoryError } = useCategories();
 
   if (loading) return <p>Loading categories...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (categoryError) return <p className="text-red-500">{categoryError}</p>;
 
   const handleCheckboxChange = (categoryId: string) => {
     if (selectedCategoryIds.includes(categoryId)) {
