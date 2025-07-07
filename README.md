@@ -5,8 +5,9 @@ An online currency exchange platform built with a modern full-stack setup. The g
 ## 🛠 Tech Stack
 
 ### Backend  
-- **ASP.NET Core** (Web API)  
+- **ASP.NET Core** (Web API, RESTful)  
 - **SQL Server Express**  
+- **JWT Authentication + Refresh Tokens**  
 - **Swagger / OpenAPI**  
 - **xUnit** & **FluentAssertions** (unit testing)  
 
@@ -16,8 +17,9 @@ An online currency exchange platform built with a modern full-stack setup. The g
 - Designed in **Figma**
 
 ## 🚀 Features (Planned / In Progress)
-- User authentication and profile management  
-- Currency exchange request flow  
+- User authentication with **JWT + Refresh Token flow**  
+- Profile and account management  
+- Currency exchange request system  
 - Admin panel for managing rates and requests  
 - Real-time exchange rate updates  
 - Transaction history  
@@ -32,7 +34,7 @@ dotnet build
 dotnet run
 ```
 
-Navigate to `https://localhost:<port>/swagger` to test API endpoints.
+Navigate to `https://localhost:7183/swagger` to test API endpoints.
 
 ### Frontend  
 ```bash
@@ -55,21 +57,59 @@ Unit tests use **xUnit** + **FluentAssertions** to ensure business logic integri
 ## 🎨 UI/UX Design
 
 The UI is designed in Figma. You can view the design [here](https://www.figma.com/design/rVCxCXNpINRi4OgkEIF3FK/Exchanger?node-id=0-1&p=f&t=UezbtG8bryRt3GPO-0)  
-<!-- TODO: Replace # with a public Figma link if available -->
 
 ## 📦 Database
 
 Make sure you have **SQL Server Express** installed.  
 Connection string is located in `appsettings.Development.json` (feel free to change it as needed).
 
-## 🤝 Contribution
+## 🔐 Authentication
 
-This is a personal project in progress. Feedback, ideas, and suggestions are welcome!  
-PRs might be considered in the future after the MVP is complete.
+This project uses **JWT access tokens** with a **refresh token mechanism** for secure and scalable user sessions.  
+All endpoints are structured following **REST API** best practices.
 
 ---
 
+## 📘 API Overview
+
+### 🔑 Authorization
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `POST /api/auth/refresh-jwt`
+
+### 👤 User
+- `POST /api/user/register`
+- `GET /api/user/me`
+- `PATCH /api/user/update`
+- `PATCH /api/user/change-avatar`
+- `POST /api/user/send-verification-email`
+- `POST /api/user/verify-email/{token}`
+
+### 📄 Listings
+- `POST /api/listing/create`
+- `POST /api/listing/search/by-params`
+- `POST /api/listing/search/by-title`
+- `POST /api/listing/user-{userId}/listings`
+- `DELETE /api/listing/{listingId}/delete`
+- `PATCH /api/listing/{listingId}/activate`
+- `PATCH /api/listing/{listingId}/deactivate`
+
+### 🗂️ Listing Categories
+- `POST /api/listing/category/listing-{listingId}/add`
+- `DELETE /api/listing/category/listing-{listingId}/{categoryId}`
+- `GET /api/listing/category/all`
+
+### 🖼️ Listing Images
+- `POST /api/listing/image/{listingId}/image/add`
+- `DELETE /api/listing/image/{listingId}/image/delete/{avatarUrl}`
+
 ## 📌 Status
 
-> ⚙️ MVP in development – current focus: core backend features and basic frontend flows.
-```
+> 🧪 **MVP in development**  
+> 🎯 Current focus:  
+> - Profile management  
+> - Listing management (CRUD)  
+> - Filtered search  
+> - JWT auth with refresh  
+> - RESTful API consistency
