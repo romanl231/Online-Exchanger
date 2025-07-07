@@ -54,7 +54,7 @@ Unit tests use **xUnit** + **FluentAssertions** to ensure business logic integri
 
 ## 🎨 UI/UX Design
 
-The UI is designed in Figma. You can view the design [https://www.figma.com/design/rVCxCXNpINRi4OgkEIF3FK/Exchanger?node-id=0-1&p=f&t=UezbtG8bryRt3GPO-0](#)  
+The UI is designed in Figma. You can view the design [here](https://www.figma.com/design/rVCxCXNpINRi4OgkEIF3FK/Exchanger?node-id=0-1&p=f&t=UezbtG8bryRt3GPO-0)  
 <!-- TODO: Replace # with a public Figma link if available -->
 
 ## 📦 Database
